@@ -1,0 +1,16 @@
+{
+  "name": "translation-test",
+  "version": "1.0.0",
+  "description": "Test translation of hero and house_system modules to Spanish",
+  "main": "translate-simple.js",
+  "scripts": {
+    "test": "node translate-simple.js",
+    "translate": "node translate-simple.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  },
+  "keywords": ["translation", "deepl", "modules"],
+  "author": "",
+  "license": "MIT"
+}

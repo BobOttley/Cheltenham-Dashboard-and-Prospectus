@@ -1,0 +1,117 @@
+What We Built: Translation Capability
+Implementation Approach
+We built a client-side translation system that:
+
+Uses DeepL API for translations
+Caches original English content in the browser
+Translates content when users select a language
+Attempts to preserve personalization (child names, etc.)
+
+How It Was Implemented
+
+Translation Cache System (translation-cache.js):
+
+Stores translations in memory and localStorage
+Makes DeepL API calls when content isn't cached
+Batches translation requests for efficiency
+
+
+Client-Side Rendering:
+
+Handlebars templates with placeholders like {{{{0}}}} for personalization
+Browser renders these after page loads
+Translation system tries to cache and translate rendered content
+
+
+Language Switcher:
+
+Dropdown in UI to select languages
+Triggers translation of all cached content
+Switches back to original English when needed
+
+
+
+Critical Design Flaw
+The fundamental issue: We did Handlebars rendering client-side instead of server-side
+This caused massive problems:
+
+Handlebars placeholders ({{{{0}}}}) were being cached before rendering
+When translated, you'd get "Kommen }}}}}}" instead of "Kommen BB"
+Personalization broke in translated versions
+German specifically had issues with timing and placeholder rendering
+
+Issues Encountered
+
+Placeholder Translation Problem:
+
+{{{{0}}}} was being cached literally
+Translation system saw the placeholder, not the rendered name
+Result: Gibberish in translated versions
+
+
+Timing Issues:
+
+Client-side Handlebars rendered AFTER translation cache initialized
+Race conditions between personalization and translation
+
+
+Context Loss:
+
+Emily chatbot lost family context on refresh
+Avatar images not appearing properly after language changes
+Inconsistent personalization across languages
+
+
+
+What We Should Have Done
+SERVER-SIDE HANDLEBARS RENDERING ✅
+The correct approach:
+
+Install Handlebars on server:
+
+bashnpm install handlebars
+
+Render templates server-side in server.js:
+
+javascriptconst Handlebars = require('handlebars');
+
+app.get('/prospectus', async (req, res) => {
+  const enquiryData = await getEnquiryData(req.query.id);
+  
+  // Render Handlebars BEFORE sending to browser
+  let html = fs.readFileSync('./index.html', 'utf8');
+  const template = Handlebars.compile(html);
+  html = template(enquiryData);
+  
+  res.send(html);
+});
+
+Browser receives fully rendered HTML:
+
+No {{{{0}}}} placeholders
+Already has "BB" in the content
+Translation system caches "BB", not placeholders
+
+
+Clean separation:
+
+Server handles personalization
+Client handles translation
+No interference between systems
+
+
+
+Benefits of Server-Side Approach
+✅ Handlebars renders once on server
+✅ Browser gets clean, personalized HTML
+✅ Translation caches actual content (names, not placeholders)
+✅ No timing issues
+✅ No race conditions
+✅ Emily context always available
+✅ Works perfectly in all languages
+The Fix
+Replace client-side Handlebars with server-side rendering:
+Current (broken): Browser renders {{{{0}}}} → caches → translates → breaks
+Fixed: Server renders → sends "BB" → browser caches "BB" → translates "BB" → works ✅
+Bottom line: We tried to be too clever with client-side rendering. Should have kept it simple with server-side Handlebars from the start. The translation system itself works fine - it just needs properly rendered content to translate, not template placeholders.
+Would you like me to create the complete server-side implementation now?

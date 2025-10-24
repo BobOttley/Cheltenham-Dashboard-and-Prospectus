@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Tracking Dashboard - Modular</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/dashboard-core-styles.css">
+</head>
+<body>
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1>Module Tracking Dashboard</h1>
+            <p class="header-subtitle">Real-time analytics and engagement insights</p>
+        </div>
+        <div class="header-actions">
+            <button id="refreshDashboard" class="btn-refresh">
+                <span class="refresh-icon">🔄</span> Refresh
+            </button>
+            <div class="last-updated">
+                Last updated: <span id="lastUpdatedTime">--:--</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="dashboard-main">
+        
+        <!-- Module Container: Summary Cards -->
+        <section id="module-summary-cards" class="dashboard-module" data-module="summary-cards">
+            <div class="module-loading">
+                <div class="loader"></div>
+                <p>Loading summary...</p>
+            </div>
+        </section>
+
+        <!-- Module Container: Real-time Activity -->
+        <section id="module-realtime-activity" class="dashboard-module" data-module="realtime-activity">
+            <div class="module-loading">
+                <div class="loader"></div>
+                <p>Loading activity...</p>
+            </div>
+        </section>
+
+        <!-- Module Container: Performance Table -->
+        <section id="module-performance-table" class="dashboard-module" data-module="performance-table">
+            <div class="module-loading">
+                <div class="loader"></div>
+                <p>Loading performance data...</p>
+            </div>
+        </section>
+
+        <!-- Module Container: Charts -->
+        <section id="module-charts" class="dashboard-module" data-module="charts">
+            <div class="module-loading">
+                <div class="loader"></div>
+                <p>Loading charts...</p>
+            </div>
+        </section>
+
+        <!-- Module Container: Session History -->
+        <section id="module-session-history" class="dashboard-module" data-module="session-history">
+            <div class="module-loading">
+                <div class="loader"></div>
+                <p>Loading sessions...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Core Dashboard Controller Script -->
+    <script src="/js/dashboard-core-controller.js"></script>
+    
+    <!-- Module Scripts - Load dynamically based on configuration -->
+    <script>
+        // Module Registry - Enable/Disable modules here
+        const DASHBOARD_CONFIG = {
+    modules: {
+        'summary-cards': {
+            enabled: true,
+            script: '/js/modules/module-summary-cards.js',  // ← Fixed path
+            priority: 1
+        },
+        'realtime-activity': {
+            enabled: false,
+            script: '/js/modules/module-realtime-activity.js',
+            priority: 2
+        },
+        'performance-table': {
+            enabled: false,
+            script: '/js/modules/module-performance-table.js',
+            priority: 3
+        },
+        'charts': {
+            enabled: false,
+            script: '/js/modules/module-charts.js',
+            priority: 4
+        },
+        'session-history': {
+            enabled: false,
+            script: '/js/modules/module-session-history.js',
+            priority: 5
+        }
+    },
+    refreshInterval: 30000,
+    apiEndpoint: '/api/admin/module-analytics-enhanced'
+};
+    </script>
+</body>
+</html>

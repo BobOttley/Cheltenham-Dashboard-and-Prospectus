@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheltenham College Admin</title>
+    
+    <!-- Chart.js for Analytics - UPDATED TO 4.4.0 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- MODULAR CSS -->
+    <link rel="stylesheet" href="css/followups.css">
+    <link rel="stylesheet" href="css/prospects.css">
+    <link rel="stylesheet" href="css/analytics.css">
+    <link rel="stylesheet" href="css/enhanced-analytics.css">
+    <link rel="stylesheet" href="css/opendays.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/enquiry-view-modal.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #f5f7fa; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%); color: white; padding: 20px 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .header h1 { font-size: 28px; margin-bottom: 5px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .logout-btn { position: absolute; top: 20px; right: 30px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+        
+        /* Tabs */
+        .tabs { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100; }
+        .tabs-container { display: flex; padding: 0 30px; overflow-x: auto; }
+        .tab { padding: 15px 25px; cursor: pointer; color: #64748b; font-weight: 500; border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; position: relative; text-decoration: none !important; }
+        .tab:hover { background: #f8f9fa; color: #1e3a5f; text-decoration: none !important; }
+        .tab.active { color: #c9a961; border-bottom-color: #c9a961; text-decoration: none !important; }
+        .tab, .tab *, .tab:hover, .tab:focus, .tab:active, .tab:visited { text-decoration: none !important; text-decoration-line: none !important; text-decoration-color: transparent !important; text-decoration-style: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; background-image: none !important; -webkit-text-decoration: none !important; -moz-text-decoration: none !important; }
+        .tab.active { border-bottom: 3px solid #c9a961 !important; }
+        .followup-badge { background: #dc3545; color: white; padding: 2px 6px; border-radius: 10px; font-size: 11px; margin-left: 5px; min-width: 18px; display: none; text-align: center; }
+        .followup-badge.active { display: inline-block; }
+        
+        /* NUCLEAR OPTION - Kill all decorations */
+        .no-decoration, .no-decoration * { 
+            text-decoration: none !important; 
+            text-decoration-line: none !important;
+            text-decoration-color: transparent !important;
+            text-decoration-style: none !important;
+            text-decoration-thickness: 0 !important;
+            -webkit-text-decoration: none !important;
+            -moz-text-decoration: none !important;
+            border: none !important;
+            border-bottom: none !important;
+            box-shadow: none !important;
+            background-image: none !important;
+            outline: none !important;
+        }
+        
+        /* Content */
+        .content { padding: 30px; max-width: 1800px; margin: 0 auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Stats Cards */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-value { font-size: 32px; font-weight: 700; color: #1e3a5f; margin-bottom: 8px; }
+        .stat-label { color: #64748b; font-size: 14px; }
+        
+        /* Filter Bar */
+        .filter-bar { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .filter-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .filter-row:last-child { margin-bottom: 0; }
+        .filter-group { flex: 1; min-width: 200px; }
+        .filter-group label { display: block; font-weight: 600; color: #1e3a5f; font-size: 13px; margin-bottom: 8px; }
+        .filter-group input, .filter-group select { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; }
+        .filter-actions { display: flex; gap: 10px; align-items: flex-end; }
+        
+        /* Bulk Actions */
+        .bulk-actions-bar { background: #c9a961; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: none; align-items: center; justify-content: space-between; }
+        .bulk-actions-bar.active { display: flex; }
+        .bulk-actions-info { font-weight: 600; }
+        .bulk-actions-buttons { display: flex; gap: 10px; }
+        
+        /* Bulk Status Dropdown */
+        .bulk-status-dropdown { position: relative; display: inline-block; }
+        .dropdown-toggle { position: relative; padding-right: 30px; }
+        .dropdown-toggle::after { content: '▼'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; }
+        .status-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; z-index: 1000; margin-top: 5px; }
+        .status-dropdown-menu.show { display: block; }
+        .status-dropdown-menu button { display: block; width: 100%; padding: 10px 15px; border: none; background: white; text-align: left; cursor: pointer; font-size: 14px; color: #333; transition: background 0.2s; }
+        .status-dropdown-menu button:hover { background: #f8f9fa; }
+        .status-dropdown-menu button:first-child { border-radius: 6px 6px 0 0; }
+        .status-dropdown-menu button:last-child { border-radius: 0 0 6px 6px; }
+        
+        /* Table */
+        .table-container { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1400px; }
+        th { background: #f8f9fa; padding: 12px 8px; text-align: left; font-weight: 600; color: #1e3a5f; border-bottom: 2px solid #e9ecef; font-size: 13px; cursor: pointer; user-select: none; position: relative; }
+        th:hover { background: #e9ecef; }
+        th.sortable::after { content: '⇅'; margin-left: 5px; opacity: 0.3; }
+        th.sorted-asc::after { content: '↑'; opacity: 1; }
+        th.sorted-desc::after { content: '↓'; opacity: 1; }
+        td { padding: 12px 8px; border-bottom: 1px solid #e9ecef; font-size: 13px; }
+        tr:hover { background: #f8f9fa; }
+        tr.selected { background: #fff3cd !important; }
+        
+        /* Badges */
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .badge-boarding { background: #cfe2ff; color: #084298; }
+        .badge-day { background: #fff3cd; color: #664d03; }
+        .badge-considering { background: #e7e5e4; color: #44403c; }
+        .badge-new { background: #d1f4e0; color: #0f5132; }
+        .badge-contacted { background: #cfe2ff; color: #084298; }
+        .badge-openday { background: #e0f2fe; color: #075985; }
+        .badge-privatetour { background: #fce7f3; color: #9f1239; }
+        .badge-followup { background: #fff3cd; color: #664d03; }
+        .badge-applying { background: #ddd6fe; color: #5b21b6; }
+        .badge-accepted { background: #d1fae5; color: #065f46; }
+        .badge-archived { background: #e2e3e5; color: #383d41; }
+        
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s; font-size: 14px; }
+        .btn-primary { background: #c9a961; color: white; }
+        .btn-primary:hover { background: #b89851; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-info:hover { background: #138496; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-xs { padding: 5px 10px; font-size: 12px; }
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+        
+        /* Priority Star */
+        .priority-star { font-size: 18px; cursor: pointer; color: #d3d3d3; transition: all 0.2s; }
+        .priority-star.active { color: #ffc107; }
+        .priority-star:hover { transform: scale(1.2); }
+        
+        /* Loading */
+        .loading { text-align: center; padding: 60px; color: #64748b; }
+        .spinner { border: 4px solid #f3f4f6; border-top: 4px solid #c9a961; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Notification */
+        #notification { position: fixed; top: 20px; right: 20px; padding: 15px 25px; background: #10b981; color: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 2000; }
+        #notification.error { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div id="notification"></div>
+    
+    <div class="header">
+        <h1>Cheltenham College Admin</h1>
+        <p>Comprehensive enquiry management and analytics</p>
+        <button class="logout-btn" onclick="handleLogout()">Logout</button>
+    </div>
+
+    <div class="tabs">
+        <div class="tabs-container">
+            <div class="tab active" onclick="switchTab('enquiries')">Enquiries</div>
+            <div class="tab" onclick="switchTab('smartreply')">Smart Reply</div>
+            <div class="tab" onclick="switchTab('followups')"><span class="no-decoration">Follow Up</span></div>
+            <div class="tab" onclick="switchTab('prospects')">Top Prospects</div>
+            <div class="tab" onclick="switchTab('analytics')">Analytics</div>
+            <div class="tab" onclick="switchTab('enhanced')">Enhanced Analytics</div>
+            <div class="tab" onclick="switchTab('opendays')">Open Days</div>
+            <div class="tab" onclick="switchTab('smartreply-settings')">Smart Reply Settings</div>
+            <div class="tab" onclick="switchTab('settings')">Settings</div>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- ENQUIRIES TAB (LANDING PAGE) -->
+        <div id="enquiries-tab" class="tab-content active">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCount">-</div>
+                    <div class="stat-label">Total Enquiries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="newCount">-</div>
+                    <div class="stat-label">New</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="todayCount">-</div>
+                    <div class="stat-label">Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="weekCount">-</div>
+                    <div class="stat-label">This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="priorityCount">-</div>
+                    <div class="stat-label">Priority</div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>🔍 Search</label>
+                        <input type="text" id="searchInput" placeholder="Search by name, email, family..." onkeyup="filterEnquiries()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select id="filterStatus" onchange="filterEnquiries()">
+                            <option value="">All Statuses</option>
+                            <option value="new">New</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="openday">Open Day</option>
+                            <option value="privatetour">Private Tour</option>
+                            <option value="followup">Follow-up</option>
+                            <option value="applying">Applying</option>
+                            <option value="accepted">Accepted</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Form Entry</label>
+                        <select id="filterFormEntry" onchange="filterEnquiries()">
+                            <option value="">All Forms</option>
+                            <option value="Third Form">Third Form</option>
+                            <option value="Fourth Form">Fourth Form</option>
+                            <option value="Fifth Form">Fifth Form</option>
+                            <option value="Lower Sixth Form">Lower Sixth Form</option>
+                            <option value="Upper Sixth Form">Upper Sixth Form</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Boarding Type</label>
+                        <select id="filterBoarding" onchange="filterEnquiries()">
+                            <option value="">All Types</option>
+                            <option value="Boarding">Boarding</option>
+                            <option value="Day">Day</option>
+                            <option value="Considering">Considering</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Country</label>
+                        <select id="filterCountry" onchange="filterEnquiries()">
+                            <option value="">All Countries</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Date From</label>
+                        <input type="date" id="filterDateFrom" onchange="filterEnquiries()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Date To</label>
+                        <input type="date" id="filterDateTo" onchange="filterEnquiries()">
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-success" onclick="openNewEnquiryModal()">+ New Enquiry</button>
+                        <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                        <button class="btn btn-primary" onclick="exportEnquiries()">📥 Export CSV</button>
+                        <button class="btn btn-primary" onclick="loadEnquiries()">🔄 Refresh</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Actions Bar -->
+            <div class="bulk-actions-bar" id="bulkActionsBar">
+                <div class="bulk-actions-info">
+                    <span id="selectedCount">0</span> enquiries selected
+                </div>
+                <div class="bulk-actions-buttons">
+                    <div class="bulk-status-dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" onclick="toggleStatusDropdown()">
+                            📝 Change Status
+                        </button>
+                        <div class="status-dropdown-menu" id="statusDropdownMenu">
+                            <button onclick="bulkChangeStatus('new')">📩 New</button>
+                            <button onclick="bulkChangeStatus('contacted')">✓ Contacted</button>
+                            <button onclick="bulkChangeStatus('openday')">🏫 Open Day</button>
+                            <button onclick="bulkChangeStatus('privatetour')">🚶 Private Tour</button>
+                            <button onclick="bulkChangeStatus('followup')">⏰ Follow-up</button>
+                            <button onclick="bulkChangeStatus('applying')">📄 Applying</button>
+                            <button onclick="bulkChangeStatus('accepted')">✅ Accepted</button>
+                            <button onclick="bulkChangeStatus('archived')">📁 Archived</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-info btn-sm" onclick="bulkGenerateEmails()">✉️ Generate Emails</button>
+                    <button class="btn btn-danger btn-sm" onclick="bulkDelete()">🗑️ Delete</button>
+                    <button class="btn btn-secondary btn-sm" onclick="deselectAll()">✕ Clear</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div id="enquiries-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading enquiries...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE CONTAINERS - LOAD FROM EXTERNAL HTML FILES -->
+        <div id="followups-tab" class="tab-content"></div>
+        <div id="prospects-tab" class="tab-content"></div>
+        <div id="analytics-tab" class="tab-content"></div>
+        <div id="enhanced-tab" class="tab-content"></div>
+        <div id="opendays-tab" class="tab-content"></div>
+        <div id="smartreply-settings-tab" class="tab-content"></div>
+        <div id="smartreply-tab" class="tab-content"></div>
+        <div id="settings-tab" class="tab-content"></div>
+    </div>
+
+    <!-- ENQUIRY DETAIL MODAL (MODULAR STRUCTURE) -->
+    <div id="enquiryDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="enquiryDetailTitle">Enquiry Details</h2>
+                <button class="close-modal-btn" onclick="closeEnquiryDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="enquiryDetailContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="deleteEnquiry(currentViewEnquiryId)">🗑️ Delete Enquiry</button>
+                <button class="btn btn-primary" onclick="openEmailClient()">✉️ Send Email</button>
+                <button class="btn btn-secondary" onclick="closeEnquiryDetailModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW ENQUIRY MODAL -->
+    <div class="modal" id="newEnquiryModal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>➕ Create New Enquiry</h2>
+                <button class="close-modal" onclick="closeNewEnquiryModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newEnquiryForm" onsubmit="submitNewEnquiry(event)">
+                    
+                    <!-- Section 1: Contact Details -->
+                    <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                        <h3 style="color:#1e3a5f;margin-bottom:15px;font-size:18px;">Contact Details</h3>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Child's First Name *</label>
+                                <input type="text" id="new_first_name" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Family Surname *</label>
+                                <input type="text" id="new_family_surname" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Parent/Guardian Name *</label>
+                                <input type="text" id="new_parent_name" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Parent Email *</label>
+                                <input type="email" id="new_parent_email" required style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Contact Number</label>
+                                <input type="tel" id="new_contact_number" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Country</label>
+                                <input type="text" id="new_country" value="United Kingdom" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Student Information -->
+                    <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                        <h3 style="color:#1e3a5f;margin-bottom:15px;font-size:18px;">Student Information</h3>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Gender</label>
+                                <select id="new_gender" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                                    <option value="">Select...</option>
+                                    <option value="male">Boy</option>
+                                    <option value="female">Girl</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Age Group</label>
+                                <select id="new_age_group" onchange="updateFormEntryOptions()" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                                    <option value="">Select...</option>
+                                    <option value="13">13 (Third Form - Year 9)</option>
+                                    <option value="14">14 (Fourth Form - Year 10)</option>
+                                    <option value="15">15 (Fifth Form - Year 11)</option>
+                                    <option value="16">16 (Lower Sixth - Year 12)</option>
+                                    <option value="17">17 (Upper Sixth - Year 13)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Form Entry</label>
+                                <select id="new_form_entry" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                                    <option value="">Select age group first...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Entry Year</label>
+                                <select id="new_entry_year" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                                    <option value="">Select...</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                    <option value="2027">2027</option>
+                                    <option value="2028">2028</option>
+                                    <option value="2029">2029</option>
+                                    <option value="2030">2030</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Boarding Preference</label>
+                                <select id="new_boarding_preference" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                                    <option value="">Select...</option>
+                                    <option value="Full Boarding">Full Boarding</option>
+                                    <option value="Day">Day</option>
+                                    <option value="Considering Both">Considering Both</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">University Aspirations</label>
+                                <select id="new_university_aspirations" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                                    <option value="">Select...</option>
+                                    <option value="Oxford or Cambridge">Oxford or Cambridge</option>
+                                    <option value="Russell Group">Russell Group</option>
+                                    <option value="Top UK University">Top UK University</option>
+                                    <option value="International University">International University</option>
+                                    <option value="Undecided">Undecided</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Academic Interests (Multi-select) -->
+                    <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                        <h3 style="color:#1e3a5f;margin-bottom:15px;font-size:18px;">Academic Interests</h3>
+                        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;">
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="academic_interests" value="mathematics" style="margin-right:8px;">
+                                <span>Mathematics</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="academic_interests" value="sciences" style="margin-right:8px;">
+                                <span>Sciences</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="academic_interests" value="english" style="margin-right:8px;">
+                                <span>English</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="academic_interests" value="languages" style="margin-right:8px;">
+                                <span>Languages</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="academic_interests" value="humanities" style="margin-right:8px;">
+                                <span>Humanities</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="academic_interests" value="arts" style="margin-right:8px;">
+                                <span>Arts</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Activities & Interests (Multi-select) -->
+                    <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                        <h3 style="color:#1e3a5f;margin-bottom:15px;font-size:18px;">Activities & Interests</h3>
+                        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;">
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="activities" value="sports" style="margin-right:8px;">
+                                <span>Sports</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="activities" value="music" style="margin-right:8px;">
+                                <span>Music</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="activities" value="drama" style="margin-right:8px;">
+                                <span>Drama & Theatre</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="activities" value="leadership" style="margin-right:8px;">
+                                <span>Leadership</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="activities" value="ccf" style="margin-right:8px;">
+                                <span>CCF Programme</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="activities" value="debate" style="margin-right:8px;">
+                                <span>Debate</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Specific Sports (Multi-select) -->
+                    <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                        <h3 style="color:#1e3a5f;margin-bottom:15px;font-size:18px;">Specific Sports (if applicable)</h3>
+                        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;">
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="specific_sports" value="hockey" style="margin-right:8px;">
+                                <span>Hockey</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="specific_sports" value="rugby" style="margin-right:8px;">
+                                <span>Rugby</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="specific_sports" value="cricket" style="margin-right:8px;">
+                                <span>Cricket</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="specific_sports" value="netball" style="margin-right:8px;">
+                                <span>Netball</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="specific_sports" value="athletics" style="margin-right:8px;">
+                                <span>Athletics</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="specific_sports" value="tennis" style="margin-right:8px;">
+                                <span>Tennis</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="specific_sports" value="swimming" style="margin-right:8px;">
+                                <span>Swimming</span>
+                            </label>
+                            <label style="display:flex;align-items:center;padding:8px;background:white;border-radius:4px;cursor:pointer;">
+                                <input type="checkbox" name="specific_sports" value="rowing" style="margin-right:8px;">
+                                <span>Rowing</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Additional Information -->
+                    <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+                        <h3 style="color:#1e3a5f;margin-bottom:15px;font-size:18px;">Additional Information</h3>
+                        <div>
+                            <label style="font-weight:600;color:#64748b;font-size:13px;display:block;margin-bottom:5px;">Notes</label>
+                            <textarea id="new_additional_info" rows="4" placeholder="Any additional information about this enquiry..." style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;resize:vertical;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:15px;border-top:1px solid #ddd;">
+                        <button type="button" class="btn btn-secondary" onclick="closeNewEnquiryModal()">Cancel</button>
+                        <button type="submit" class="btn btn-success">✓ Create Enquiry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    #newEnquiryModal .modal-content {
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    </style>
+
+    <script>
+        // CORE VARIABLES
+        let allEnquiries = [];
+        let filteredEnquiries = [];
+        let selectedEnquiries = new Set();
+        let currentTab = 'enquiries';
+        let sortColumn = 'created_at';
+        let sortDirection = 'desc';
+
+        // INIT
+        window.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            await loadModules();
+            await loadEnquiries();
+        });
+
+        // LOAD EXTERNAL MODULE HTML
+        async function loadModules() {
+            const modules = [
+                { id: 'followups-tab', file: 'html/followups-tab.html' },
+                { id: 'prospects-tab', file: 'html/prospects-tab.html' },
+                { id: 'analytics-tab', file: 'html/analytics-tab.html' },
+                { id: 'enhanced-tab', file: 'html/enhanced-analytics-tab.html' },
+                { id: 'opendays-tab', file: 'html/opendays-tab.html' },
+                { id: 'settings-tab', file: 'html/settings-tab.html' },
+                { id: 'smartreply-settings-tab', file: 'html/smartreply-settings-tab.html' },
+                { id: 'smartreply-tab', file: 'html/smartreply-tab.html' }
+            ];
+            
+            for (const module of modules) {
+                try {
+                    const response = await fetch(module.file);
+                    const html = await response.text();
+                    const container = document.getElementById(module.id);
+                    
+                    // Set HTML content
+                    container.innerHTML = html;
+                    
+                    // Execute inline scripts (innerHTML doesn't execute them)
+                    const scripts = container.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        newScript.textContent = oldScript.textContent;
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                } catch (error) {
+                    console.error(`Failed to load ${module.file}:`, error);
+                    document.getElementById(module.id).innerHTML = `<div class="loading"><p style="color: #ef4444;">Failed to load module</p></div>`;
+                }
+            }
+        }
+
+        // AUTH
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/admin/check-auth');
+                const data = await res.json();
+                if (!data.authenticated) {
+                    window.location.href = '/admin/login';
+                }
+            } catch (error) {
+                window.location.href = '/admin/login';
+            }
+        }
+        
+        async function handleLogout() {
+            try {
+                await fetch('/api/admin/logout', { method: 'POST' });
+                window.location.href = '/admin/login';
+            } catch (error) {
+                alert('Logout failed');
+            }
+        }
+
+        // TAB SWITCHING - WITH PROPER MODULE INITIALIZATION
+        async function switchTab(tabName) {
+            currentTab = tabName;
+            
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const tabIndex = ['enquiries', 'smartreply', 'followups', 'prospects', 'analytics', 'enhanced', 'opendays', 'smartreply-settings', 'settings'].indexOf(tabName);
+            document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Always refresh data when switching tabs
+            if (tabName === 'enquiries') {
+                loadEnquiries();
+            } else if (tabName === 'followups' && typeof loadFollowups === 'function') {
+                loadFollowups();
+            } else if (tabName === 'prospects' && typeof loadTopProspects === 'function') {
+                loadTopProspects();
+            } else if (tabName === 'analytics' && typeof initAnalyticsModule === 'function') {
+                await initAnalyticsModule();
+            } else if (tabName === 'enhanced' && typeof loadEnhancedAnalytics === 'function') {
+                loadEnhancedAnalytics();
+            } else if (tabName === 'opendays' && typeof initOpenDaysModule === 'function') {
+                await initOpenDaysModule();
+            } else if (tabName === 'smartreply-settings') {
+                // Give module time to load, then initialize
+                setTimeout(() => {
+                    if (typeof initSmartReplyModule === 'function') {
+                        initSmartReplyModule();
+                    } else {
+                        console.warn('initSmartReplyModule not found, trying again...');
+                        setTimeout(() => {
+                            if (typeof initSmartReplyModule === 'function') {
+                                initSmartReplyModule();
+                            }
+                        }, 500);
+                    }
+                }, 100);
+            } else if (tabName === 'smartreply' && typeof initSmartReplyEmailModule === 'function') {
+                await initSmartReplyEmailModule();
+            } else if (tabName === 'settings' && typeof loadSettings === 'function') {
+                loadSettings();
+            }
+        }
+
+        // ENQUIRIES FUNCTIONS
+        async function loadEnquiries() {
+            showLoading('enquiries-content');
+            
+            try {
+                const res = await fetch('/api/admin/enquiries');
+                const data = await res.json();
+                
+                if (!data.success) throw new Error(data.error);
+
+                allEnquiries = data.enquiries;
+                
+                allEnquiries = allEnquiries.map(e => ({
+                    ...e,
+                    status: e.status || 'new',
+                    priority: e.priority || false,
+                    notes: e.notes || [],
+                    followup_date: e.followup_date || null,
+                    email_sent: e.email_sent || false,
+                    activities: e.activities || []
+                }));
+                
+                populateCountryFilter();
+                filteredEnquiries = [...allEnquiries];
+                updateStats();
+                filterEnquiries();
+
+            } catch (error) {
+                document.getElementById('enquiries-content').innerHTML = 
+                    `<div class="loading"><p style="color: #ef4444;">❌ ${error.message}</p></div>`;
+            }
+        }
+
+        function populateCountryFilter() {
+            const countries = [...new Set(allEnquiries.map(e => e.country).filter(Boolean))].sort();
+            const select = document.getElementById('filterCountry');
+            select.innerHTML = '<option value="">All Countries</option>' + 
+                countries.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function updateStats() {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+            document.getElementById('totalCount').textContent = allEnquiries.length;
+            document.getElementById('newCount').textContent = allEnquiries.filter(e => e.status === 'new').length;
+            document.getElementById('todayCount').textContent = allEnquiries.filter(e => new Date(e.created_at) >= today).length;
+            document.getElementById('weekCount').textContent = allEnquiries.filter(e => new Date(e.created_at) >= weekAgo).length;
+            document.getElementById('priorityCount').textContent = allEnquiries.filter(e => e.priority).length;
+        }
+
+        function filterEnquiries() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('filterStatus').value;
+            const formEntry = document.getElementById('filterFormEntry').value;
+            const boarding = document.getElementById('filterBoarding').value;
+            const country = document.getElementById('filterCountry').value;
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+
+            filteredEnquiries = allEnquiries.filter(e => {
+                const matchSearch = !search || 
+                    e.first_name?.toLowerCase().includes(search) ||
+                    e.family_surname?.toLowerCase().includes(search) ||
+                    e.parent_email?.toLowerCase().includes(search);
+                
+                const matchStatus = !status || e.status === status;
+                const matchForm = !formEntry || e.form_entry === formEntry;
+                const matchBoarding = !boarding || e.boarding?.includes(boarding);
+                const matchCountry = !country || e.country === country;
+                
+                const matchDateFrom = !dateFrom || new Date(e.created_at) >= new Date(dateFrom);
+                const matchDateTo = !dateTo || new Date(e.created_at) <= new Date(dateTo + 'T23:59:59');
+                
+                return matchSearch && matchStatus && matchForm && matchBoarding && matchCountry && matchDateFrom && matchDateTo;
+            });
+
+            sortEnquiries();
+            renderEnquiriesTable();
+        }
+
+        function sortEnquiries() {
+            filteredEnquiries.sort((a, b) => {
+                let aVal = a[sortColumn];
+                let bVal = b[sortColumn];
+                
+                if (sortColumn === 'created_at') {
+                    aVal = new Date(aVal);
+                    bVal = new Date(bVal);
+                }
+                
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function renderEnquiriesTable() {
+            if (filteredEnquiries.length === 0) {
+                document.getElementById('enquiries-content').innerHTML = 
+                    '<div class="loading"><p>No enquiries found</p></div>';
+                return;
+            }
+
+            const formatInterests = (interests) => {
+                if (!interests) return '-';
+                const str = Array.isArray(interests) ? interests.join(', ') : String(interests);
+                return str.length > 50 ? str.substring(0, 50) + '...' : str;
+            };
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                            <th class="sortable" data-column="created_at" onclick="changeSort('created_at')">Date & Time</th>
+                            <th class="sortable" data-column="first_name" onclick="changeSort('first_name')">Child</th>
+                            <th class="sortable" data-column="family_surname" onclick="changeSort('family_surname')">Family</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                            <th class="sortable" data-column="country" onclick="changeSort('country')">Country</th>
+                            <th class="sortable" data-column="form_entry" onclick="changeSort('form_entry')">Form Entry</th>
+                            <th>Entry Year</th>
+                            <th>Boarding</th>
+                            <th>Interests</th>
+                            <th class="sortable" data-column="status" onclick="changeSort('status')">Status</th>
+                            <th>Priority</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            filteredEnquiries.forEach(e => {
+                const createdDate = new Date(e.created_at);
+                const date = createdDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                const time = createdDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                
+                const boarding = e.boardingPreference || e.boarding || 'Not specified';
+                const boardingBadge = boarding.includes('Boarding') ? 'badge-boarding' : boarding.includes('Day') ? 'badge-day' : 'badge-considering';
+                const statusBadge = `badge-${e.status}`;
+                
+                html += `
+                    <tr class="${selectedEnquiries.has(e.id) ? 'selected' : ''}">
+                        <td><input type="checkbox" ${selectedEnquiries.has(e.id) ? 'checked' : ''} onchange="toggleSelectEnquiry('${e.id}')"></td>
+                        <td>${date}<br><small style="color: #64748b;">${time}</small></td>
+                        <td>${e.first_name || '-'}</td>
+                        <td>${e.family_surname || '-'}</td>
+                        <td>${e.parent_email || '-'}</td>
+                        <td>${e.contact_number || '-'}</td>
+                        <td>${e.country || '-'}</td>
+                        <td>${e.form_entry || '-'}</td>
+                        <td>${e.entry_year || '-'}</td>
+                        <td><span class="badge ${boardingBadge}">${boarding}</span></td>
+                        <td style="font-size: 11px;">${formatInterests(e.interests)}</td>
+                        <td><span class="badge ${statusBadge}">${e.status}</span></td>
+                        <td>
+                            <span class="priority-star ${e.priority ? 'active' : ''}" onclick="togglePriority('${e.id}')">★</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-info btn-xs" onclick="viewEnquiryDetail('${e.id}')">View</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('enquiries-content').innerHTML = html;
+
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            const sortedTh = document.querySelector(`th[data-column="${sortColumn}"]`);
+            if (sortedTh) {
+                sortedTh.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+            }
+        }
+
+        function changeSort(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'desc';
+            }
+            sortEnquiries();
+            renderEnquiriesTable();
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterFormEntry').value = '';
+            document.getElementById('filterBoarding').value = '';
+            document.getElementById('filterCountry').value = '';
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            filterEnquiries();
+        }
+
+        // BULK ACTIONS
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            if (selectAllCheckbox.checked) {
+                filteredEnquiries.forEach(e => selectedEnquiries.add(e.id));
+            } else {
+                selectedEnquiries.clear();
+            }
+            updateBulkActionsBar();
+            renderEnquiriesTable();
+        }
+
+        function toggleSelectEnquiry(id) {
+            if (selectedEnquiries.has(id)) {
+                selectedEnquiries.delete(id);
+            } else {
+                selectedEnquiries.add(id);
+            }
+            updateBulkActionsBar();
+            renderEnquiriesTable();
+        }
+
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulkActionsBar');
+            const count = selectedEnquiries.size;
+            
+            if (count > 0) {
+                bar.classList.add('active');
+                document.getElementById('selectedCount').textContent = count;
+            } else {
+                bar.classList.remove('active');
+            }
+        }
+
+        function deselectAll() {
+            selectedEnquiries.clear();
+            document.getElementById('selectAll').checked = false;
+            updateBulkActionsBar();
+            renderEnquiriesTable();
+        }
+
+        // Toggle status dropdown menu
+        function toggleStatusDropdown() {
+            const menu = document.getElementById('statusDropdownMenu');
+            menu.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.bulk-status-dropdown');
+            const menu = document.getElementById('statusDropdownMenu');
+            
+            if (menu && dropdown && !dropdown.contains(event.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // Unified bulk change status function
+        async function bulkChangeStatus(newStatus) {
+            // Close the dropdown
+            document.getElementById('statusDropdownMenu').classList.remove('show');
+            
+            if (selectedEnquiries.size === 0) {
+                return alert('Please select at least one enquiry first');
+            }
+            
+            // Get status display name
+            const statusNames = {
+                'new': 'New',
+                'contacted': 'Contacted',
+                'openday': 'Open Day',
+                'privatetour': 'Private Tour',
+                'followup': 'Follow-up',
+                'applying': 'Applying',
+                'accepted': 'Accepted',
+                'archived': 'Archived'
+            };
+            
+            const statusName = statusNames[newStatus] || newStatus;
+            
+            if (!confirm(`Change ${selectedEnquiries.size} enquir${selectedEnquiries.size === 1 ? 'y' : 'ies'} to "${statusName}"?`)) {
+                return;
+            }
+            
+            try {
+                const ids = Array.from(selectedEnquiries);
+                console.log(`Bulk change status to ${newStatus} - IDs:`, ids);
+                
+                const res = await fetch('/api/admin/enquiries/bulk-update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids, status: newStatus })
+                });
+                
+                console.log('Response status:', res.status);
+                
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error('Response error:', errorText);
+                    throw new Error(`Server error: ${res.status} - ${errorText}`);
+                }
+                
+                const data = await res.json();
+                console.log('Response data:', data);
+                
+                if (!data.success) throw new Error(data.error || 'Unknown error');
+                
+                // Update local data
+                allEnquiries.forEach(e => {
+                    if (ids.includes(e.id)) {
+                        e.status = newStatus;
+                    }
+                });
+                
+                deselectAll();
+                filterEnquiries();
+                updateStats();
+                showNotification(`${ids.length} enquir${ids.length === 1 ? 'y' : 'ies'} changed to "${statusName}"`);
+                
+                // If changed to followup status, refresh followups tab
+                if (newStatus === 'followup' && typeof loadFollowups === 'function') {
+                    loadFollowups();
+                }
+                
+            } catch (error) {
+                console.error('Bulk status change error:', error);
+                showNotification('Error changing status: ' + error.message, 'error');
+            }
+        }
+
+        async function bulkMarkContacted() {
+            if (selectedEnquiries.size === 0) return alert('Please select enquiries first');
+            if (!confirm(`Mark ${selectedEnquiries.size} enquiries as contacted?`)) return;
+            
+            try {
+                const ids = Array.from(selectedEnquiries);
+                const res = await fetch('/api/admin/enquiries/bulk-update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids, status: 'contacted' })
+                });
+                
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+                
+                allEnquiries.forEach(e => {
+                    if (ids.includes(e.id)) e.status = 'contacted';
+                });
+                
+                deselectAll();
+                filterEnquiries();
+                updateStats();
+                showNotification(`${ids.length} enquiries marked as contacted`);
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        async function bulkMarkFollowup() {
+            if (selectedEnquiries.size === 0) return alert('Please select enquiries first');
+            const date = prompt('Follow-up date (YYYY-MM-DD):');
+            if (!date) return;
+            
+            try {
+                const ids = Array.from(selectedEnquiries);
+                const res = await fetch('/api/admin/enquiries/bulk-update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids, status: 'followup', followup_date: date })
+                });
+                
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+                
+                allEnquiries.forEach(e => {
+                    if (ids.includes(e.id)) {
+                        e.status = 'followup';
+                        e.followup_date = date;
+                    }
+                });
+                
+                deselectAll();
+                filterEnquiries();
+                updateStats();
+                showNotification(`${ids.length} enquiries marked for follow-up`);
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        async function bulkGenerateEmails() {
+            if (selectedEnquiries.size === 0) return alert('Please select enquiries first');
+            alert('Email generation feature coming soon!');
+        }
+
+        async function bulkArchive() {
+            if (selectedEnquiries.size === 0) return alert('Please select enquiries first');
+            if (!confirm(`Archive ${selectedEnquiries.size} enquiries?`)) return;
+            
+            try {
+                const ids = Array.from(selectedEnquiries);
+                const res = await fetch('/api/admin/enquiries/bulk-update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids, status: 'archived' })
+                });
+                
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+                
+                allEnquiries.forEach(e => {
+                    if (ids.includes(e.id)) e.status = 'archived';
+                });
+                
+                deselectAll();
+                filterEnquiries();
+                updateStats();
+                showNotification(`${ids.length} enquiries archived`);
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        async function bulkDelete() {
+            if (selectedEnquiries.size === 0) return alert('Please select enquiries first');
+            if (!confirm(`⚠️ PERMANENTLY DELETE ${selectedEnquiries.size} enquiries? This cannot be undone!`)) return;
+            
+            try {
+                const ids = Array.from(selectedEnquiries);
+                const res = await fetch('/api/admin/enquiries/bulk-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+                
+                allEnquiries = allEnquiries.filter(e => !ids.includes(e.id));
+                
+                deselectAll();
+                filterEnquiries();
+                updateStats();
+                showNotification(`${ids.length} enquiries deleted`);
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        async function exportEnquiries() {
+            const csv = 'data:text/csv;charset=utf-8,' + 
+                'Date,Time,Child,Family,Email,Contact,Country,Form Entry,Entry Year,Boarding,Interests,Status\n' +
+                filteredEnquiries.map(e => {
+                    const date = new Date(e.created_at);
+                    const dateStr = date.toLocaleDateString('en-GB');
+                    const timeStr = date.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+                    const interests = Array.isArray(e.interests) ? e.interests.join('; ') : (e.interests || '');
+                    return `"${dateStr}","${timeStr}","${e.first_name}","${e.family_surname}","${e.parent_email}","${e.contact_number || ''}","${e.country || ''}","${e.form_entry}","${e.entry_year}","${e.boarding}","${interests}","${e.status}"`;
+                }).join('\n');
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', encodeURI(csv));
+            link.setAttribute('download', `enquiries_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function togglePriority(id) {
+            try {
+                const enquiry = allEnquiries.find(e => e.id === id);
+                const newPriority = !enquiry.priority;
+                
+                const res = await fetch(`/api/admin/enquiries/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ priority: newPriority })
+                });
+                
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+                
+                enquiry.priority = newPriority;
+                updateStats();
+                renderEnquiriesTable();
+            } catch (error) {
+                showNotification(error.message, 'error');
+            }
+        }
+
+        // UTILITIES
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.className = type === 'error' ? 'error' : '';
+            notif.style.display = 'block';
+            setTimeout(() => {
+                notif.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+
+    <!-- MODULAR JAVASCRIPT - CORRECT ORDER -->
+    <script src="js/enquiry-view-modal.js"></script>
+    <script src="js/followups.js"></script>
+    <script src="js/prospects.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/enhanced-analytics.js"></script>
+    <script src="js/opendays.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="/js/admin-tracking.js"></script>
+    <script src="js/email-generator.js"></script>
+
+    <script>
+// Add email history to enquiry modals
+const originalViewEnquiryDetail = window.viewEnquiryDetail;
+window.viewEnquiryDetail = async function(id) {
+    await originalViewEnquiryDetail(id);
+    
+    // Add email history section
+    setTimeout(() => {
+        const moduleSection = document.querySelector('.module-details-section');
+        if (moduleSection) {
+            const emailHTML = `
+                <div class="collapsible-section">
+                    <h3>📧 Email History</h3>
+                    <div id="email-history-content">Loading...</div>
+                </div>
+            `;
+            moduleSection.insertAdjacentHTML('afterend', emailHTML);
+            
+            // Load emails
+            fetch(`/api/admin/email-history/${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('email-history-content');
+                    if (data.emails && data.emails.length > 0) {
+                        container.innerHTML = data.emails.map(e => 
+                            `<div>${e.direction} - ${e.subject}</div>`
+                        ).join('');
+                    } else {
+                        container.innerHTML = 'No emails';
+                    }
+                });
+        }
+    }, 100);
+};
+</script>
+<script>
+    // ... all your existing functions (loadEnquiries, viewEnquiryDetail, etc.) ...
+
+    // ADD THIS AT THE BOTTOM OF YOUR EXISTING SCRIPT SECTION:
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'open-enquiry') {
+            const enquiryId = event.data.enquiryId;
+            console.log('📨 Opening enquiry:', enquiryId);
+            
+            // Switch to enquiries tab
+            if (typeof switchTab === 'function') {
+                switchTab('enquiries');
+            }
+            
+            // Wait for tab to load, then open enquiry detail
+            setTimeout(() => {
+                if (typeof viewEnquiryDetail === 'function') {
+                    viewEnquiryDetail(enquiryId);
+                }
+            }, 300);
+        }
+    });
+
+    // ===================================================================
+    // INLINE EDITING FUNCTIONS FOR ENQUIRY FIELDS
+    // ===================================================================
+    
+    window.makeFieldEditable = function(event, enquiryId, fieldName, currentValue, fieldType = 'text') {
+        event.stopPropagation();
+        
+        const container = event.target.closest('.detail-value');
+        if (!container) return;
+        
+        // If already editing, don't re-trigger
+        if (container.querySelector('select, input')) return;
+        
+        // Store original content
+        container.dataset.original = container.innerHTML;
+        
+        let inputHTML;
+        if (fieldType === 'form_entry') {
+            inputHTML = `
+                <select id="edit-${fieldName}" style="width:100%;padding:6px;border:1px solid #c9a961;border-radius:4px;font-size:14px;">
+                    <option value="">-</option>
+                    <option value="Third Form" ${currentValue === 'Third Form' ? 'selected' : ''}>Third Form</option>
+                    <option value="Fourth Form" ${currentValue === 'Fourth Form' ? 'selected' : ''}>Fourth Form</option>
+                    <option value="Fifth Form" ${currentValue === 'Fifth Form' ? 'selected' : ''}>Fifth Form</option>
+                    <option value="Lower Sixth Form" ${currentValue === 'Lower Sixth Form' ? 'selected' : ''}>Lower Sixth Form</option>
+                    <option value="Upper Sixth Form" ${currentValue === 'Upper Sixth Form' ? 'selected' : ''}>Upper Sixth Form</option>
+                </select>
+            `;
+        } else if (fieldType === 'entry_year') {
+            const currentYear = new Date().getFullYear();
+            const years = [];
+            for (let i = 0; i < 5; i++) {
+                years.push(currentYear + i);
+            }
+            inputHTML = `
+                <select id="edit-${fieldName}" style="width:100%;padding:6px;border:1px solid #c9a961;border-radius:4px;font-size:14px;">
+                    <option value="">-</option>
+                    ${years.map(y => `<option value="${y}" ${currentValue == y ? 'selected' : ''}>${y}</option>`).join('')}
+                </select>
+            `;
+        } else if (fieldType === 'select' || fieldType === 'boarding_type') {
+            inputHTML = `
+                <select id="edit-${fieldName}" style="width:100%;padding:6px;border:1px solid #c9a961;border-radius:4px;font-size:14px;">
+                    <option value="">-</option>
+                    <option value="Day" ${currentValue === 'Day' ? 'selected' : ''}>Day</option>
+                    <option value="Boarding" ${currentValue === 'Boarding' ? 'selected' : ''}>Boarding</option>
+                    <option value="Flexible" ${currentValue === 'Flexible' ? 'selected' : ''}>Flexible</option>
+                </select>
+            `;
+        } else if (fieldType === 'age_group') {
+            inputHTML = `
+                <select id="edit-${fieldName}" style="width:100%;padding:6px;border:1px solid #c9a961;border-radius:4px;font-size:14px;">
+                    <option value="">-</option>
+                    <option value="13" ${currentValue === '13' ? 'selected' : ''}>13 (Third Form - Year 9)</option>
+                    <option value="14" ${currentValue === '14' ? 'selected' : ''}>14 (Fourth Form - Year 10)</option>
+                    <option value="15" ${currentValue === '15' ? 'selected' : ''}>15 (Fifth Form - Year 11)</option>
+                    <option value="16" ${currentValue === '16' ? 'selected' : ''}>16 (Lower Sixth - Year 12)</option>
+                    <option value="17" ${currentValue === '17' ? 'selected' : ''}>17 (Upper Sixth - Year 13)</option>
+                </select>
+            `;
+        } else if (fieldType === 'gender') {
+            inputHTML = `
+                <select id="edit-${fieldName}" style="width:100%;padding:6px;border:1px solid #c9a961;border-radius:4px;font-size:14px;">
+                    <option value="">-</option>
+                    <option value="male" ${currentValue === 'male' ? 'selected' : ''}>Boy</option>
+                    <option value="female" ${currentValue === 'female' ? 'selected' : ''}>Girl</option>
+                </select>
+            `;
+        } else if (fieldType === 'boarding_preference') {
+            inputHTML = `
+                <select id="edit-${fieldName}" style="width:100%;padding:6px;border:1px solid #c9a961;border-radius:4px;font-size:14px;">
+                    <option value="">-</option>
+                    <option value="Full Boarding" ${currentValue === 'Full Boarding' ? 'selected' : ''}>Full Boarding</option>
+                    <option value="Day" ${currentValue === 'Day' ? 'selected' : ''}>Day</option>
+                    <option value="Considering Both" ${currentValue === 'Considering Both' ? 'selected' : ''}>Considering Both</option>
+                </select>
+            `;
+        } else if (fieldType === 'email_sent') {
+            inputHTML = `
+                <select id="edit-${fieldName}" style="width:100%;padding:6px;border:1px solid #c9a961;border-radius:4px;font-size:14px;">
+                    <option value="false" ${currentValue === false || currentValue === 'false' ? 'selected' : ''}>✗ Not yet</option>
+                    <option value="true" ${currentValue === true || currentValue === 'true' ? 'selected' : ''}>✓ Yes</option>
+                </select>
+            `;
+        } else {
+            inputHTML = `
+                <input type="${fieldType}" 
+                       id="edit-${fieldName}" 
+                       value="${(currentValue || '').replace(/"/g, '&quot;')}" 
+                       style="width:100%;padding:6px;border:1px solid #c9a961;border-radius:4px;font-size:14px;">
+            `;
+        }
+        
+        container.innerHTML = `
+            <div style="display:flex;gap:6px;align-items:center;">
+                ${inputHTML}
+                <button onclick="event.stopPropagation(); saveField('${enquiryId}', '${fieldName}')" 
+                        style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;">
+                    ✓
+                </button>
+                <button onclick="event.stopPropagation(); cancelEdit('${fieldName}')" 
+                        style="background:#6c757d;color:white;border:none;padding:6px 10px;border-radius:4px;cursor:pointer;font-size:12px;">
+                    ✕
+                </button>
+            </div>
+        `;
+        
+        const input = document.getElementById(`edit-${fieldName}`);
+        if (input) {
+            input.focus();
+            // For selects, open the dropdown
+            if (input.tagName === 'SELECT') {
+                setTimeout(() => {
+                    input.click();
+                }, 50);
+            }
+        }
+    };
+    
+    window.saveField = async function(enquiryId, fieldName) {
+        const input = document.getElementById(`edit-${fieldName}`);
+        if (!input) return;
+        
+        let newValue = input.value.trim();
+        
+        // Convert string booleans to actual booleans for email_sent
+        if (fieldName === 'email_sent') {
+            newValue = newValue === 'true';
+        }
+        
+        try {
+            const response = await fetch(`/api/admin/enquiries/${enquiryId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ [fieldName]: newValue })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const enquiry = allEnquiries.find(e => e.id === enquiryId);
+                if (enquiry) {
+                    enquiry[fieldName] = newValue;
+                }
+                
+                await viewEnquiryDetail(enquiryId);
+                showNotification('✅ Updated successfully');
+            } else {
+                throw new Error(data.error || 'Failed to update');
+            }
+        } catch (error) {
+            console.error('Error saving field:', error);
+            showNotification('❌ Failed to update: ' + error.message, 'error');
+        }
+    };
+    
+    window.cancelEdit = function(fieldName) {
+        const input = document.getElementById(`edit-${fieldName}`);
+        if (input) {
+            const container = input.closest('.detail-value');
+            if (container && container.dataset.original) {
+                container.innerHTML = container.dataset.original;
+            }
+        }
+    };
+    
+    window.editInterests = function(event, enquiryId, fieldType, currentValues) {
+        event.stopPropagation();
+        
+        const container = event.target.closest('.detail-value');
+        if (!container) return;
+        if (container.querySelector('input[type="checkbox"]')) return;
+        
+        container.dataset.original = container.innerHTML;
+        
+        // EXACT options from enquiry form
+        const options = {
+            'interests': {
+                'Lower': [
+                    { value: 'sciences', label: 'Third Form Sciences & Mathematics' },
+                    { value: 'humanities', label: 'Third Form Humanities' },
+                    { value: 'languages', label: 'Third Form Languages' },
+                    { value: 'arts', label: 'Third Form Creative Arts' },
+                    { value: 'special_programmes', label: 'Special Programmes' }
+                ],
+                'Upper': [
+                    { value: 'sciences', label: 'Sciences & Mathematics' },
+                    { value: 'languages', label: 'Languages & Classical Studies' },
+                    { value: 'humanities', label: 'Humanities & Social Sciences' },
+                    { value: 'arts', label: 'Creative Arts' },
+                    { value: 'applied_vocational', label: 'Applied & Vocational Studies' }
+                ]
+            },
+            'activities': [
+                { value: 'sports', label: 'Sports' },
+                { value: 'music', label: 'Music' },
+                { value: 'drama', label: 'Drama' },
+                { value: 'leadership', label: 'Leadership' },
+                { value: 'ccf', label: 'CCF' }
+            ],
+            'sports': [
+                'Hockey', 'Rugby', 'Cricket', 'Netball', 'Tennis', 'Swimming', 
+                'Athletics', 'Squash', 'Fencing', 'Badminton', 'Basketball', 
+                'Football', 'Volleyball', 'Water Polo', 'Golf', 'Cross Country', 
+                'Equestrian', 'Clay Shooting', 'Polo', 'Ultimate Frisbee', 
+                'Lacrosse', 'Rounders'
+            ]
+        };
+        
+        let availableOptions = [];
+        let formDataField = '';
+        
+        if (fieldType === 'interests') {
+            // Show both Lower and Upper options combined
+            availableOptions = [
+                { value: '', label: '--- Lower College (13-15) ---', disabled: true },
+                ...options.interests.Lower,
+                { value: '', label: '--- Upper College (16-18) ---', disabled: true },
+                ...options.interests.Upper
+            ];
+            formDataField = 'academicInterests';
+        } else if (fieldType === 'activities') {
+            availableOptions = options.activities;
+            formDataField = 'activities';
+        } else if (fieldType === 'sports') {
+            availableOptions = options.sports.map(s => ({ value: s, label: s }));
+            formDataField = 'specificSports';
+        }
+        
+        let checkboxHTML = availableOptions.map(opt => {
+            const optValue = opt.value || opt;
+            const optLabel = opt.label || opt;
+            const isDisabled = opt.disabled || false;
+            const checked = currentValues.includes(optValue);
+            
+            if (isDisabled) {
+                return `
+                    <div style="margin:10px 0 5px 0;font-weight:600;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">
+                        ${optLabel}
+                    </div>
+                `;
+            }
+            
+            return `
+                <div style="margin-bottom:5px;">
+                    <label style="display:flex;align-items:center;cursor:pointer;">
+                        <input type="checkbox" value="${optValue}" ${checked ? 'checked' : ''} style="margin-right:8px;">
+                        ${optLabel}
+                    </label>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = `
+            <div style="max-height:200px;overflow-y:auto;padding:10px;background:white;border:1px solid #c9a961;border-radius:4px;">
+                ${checkboxHTML}
+            </div>
+            <div style="display:flex;gap:6px;margin-top:10px;">
+                <button onclick="saveInterests(event, '${enquiryId}', '${formDataField}')" 
+                        style="background:#16a34a;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px;">
+                    ✓ Save
+                </button>
+                <button onclick="event.stopPropagation(); cancelEdit('temp')" 
+                        style="background:#6c757d;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px;">
+                    ✕ Cancel
+                </button>
+            </div>
+        `;
+    };
+    
+    window.saveInterests = async function(event, enquiryId, fieldName) {
+        event.stopPropagation();
+        
+        const container = event.target.closest('.detail-value').parentElement;
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+        const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+        
+        console.log('Saving', fieldName, ':', selectedValues);
+        
+        try {
+            const response = await fetch(`/api/admin/enquiries/${enquiryId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ [fieldName]: selectedValues })  // Send array, not JSON string
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification('✅ Updated successfully');
+                await loadEnquiries();
+            } else {
+                throw new Error(data.error || 'Failed to update');
+            }
+        } catch (error) {
+            console.error('Error saving:', error);
+            showNotification('❌ Failed to update: ' + error.message, 'error');
+        }
+    };
+
+    // ========================================================================
+    // NEW ENQUIRY MODAL FUNCTIONS
+    // ========================================================================
+
+    /**
+     * Open the New Enquiry Modal
+     */
+    function openNewEnquiryModal() {
+        document.getElementById('newEnquiryModal').classList.add('active');
+        document.getElementById('newEnquiryForm').reset();
+        // Reset form entry options
+        document.getElementById('new_form_entry').innerHTML = '<option value="">Select age group first...</option>';
+    }
+
+    /**
+     * Close the New Enquiry Modal
+     */
+    function closeNewEnquiryModal() {
+        document.getElementById('newEnquiryModal').classList.remove('active');
+    }
+
+    /**
+     * Update Form Entry options based on selected age group
+     */
+    function updateFormEntryOptions() {
+        const ageGroup = document.getElementById('new_age_group').value;
+        const formEntrySelect = document.getElementById('new_form_entry');
+        
+        if (!ageGroup) {
+            formEntrySelect.innerHTML = '<option value="">Select age group first...</option>';
+            return;
+        }
+        
+        let options = '<option value="">Select...</option>';
+        
+        // Ages 13-15 = Lower College (Third, Fourth, Fifth Form)
+        if (ageGroup === '13' || ageGroup === '14' || ageGroup === '15') {
+            options += '<option value="Third Form">Third Form (Year 9)</option>';
+            options += '<option value="Fourth Form">Fourth Form (Year 10)</option>';
+            options += '<option value="Fifth Form">Fifth Form (Year 11)</option>';
+        }
+        // Ages 16-17 = Upper College (Lower Sixth, Upper Sixth)
+        else if (ageGroup === '16' || ageGroup === '17') {
+            options += '<option value="Lower Sixth Form">Lower Sixth Form (Year 12)</option>';
+            options += '<option value="Upper Sixth Form">Upper Sixth Form (Year 13)</option>';
+        }
+        
+        formEntrySelect.innerHTML = options;
+    }
+
+    /**
+     * Submit the New Enquiry Form
+     */
+    async function submitNewEnquiry(event) {
+        event.preventDefault();
+        
+        // Gather form data
+        const formData = {
+            first_name: document.getElementById('new_first_name').value.trim(),
+            family_surname: document.getElementById('new_family_surname').value.trim(),
+            parent_name: document.getElementById('new_parent_name').value.trim(),
+            parent_email: document.getElementById('new_parent_email').value.trim(),
+            contact_number: document.getElementById('new_contact_number').value.trim(),
+            country: document.getElementById('new_country').value.trim() || 'United Kingdom',
+            gender: document.getElementById('new_gender').value,
+            age_group: document.getElementById('new_age_group').value,
+            form_entry: document.getElementById('new_form_entry').value,
+            entry_year: document.getElementById('new_entry_year').value,
+            boarding_preference: document.getElementById('new_boarding_preference').value,
+            university_aspirations: document.getElementById('new_university_aspirations').value,
+            additional_info: document.getElementById('new_additional_info').value.trim()
+        };
+        
+        // Gather multi-select checkboxes
+        const academicInterests = [];
+        document.querySelectorAll('input[name="academic_interests"]:checked').forEach(cb => {
+            academicInterests.push(cb.value);
+        });
+        
+        const activities = [];
+        document.querySelectorAll('input[name="activities"]:checked').forEach(cb => {
+            activities.push(cb.value);
+        });
+        
+        const specificSports = [];
+        document.querySelectorAll('input[name="specific_sports"]:checked').forEach(cb => {
+            specificSports.push(cb.value);
+        });
+        
+        // Add arrays to formData
+        formData.academic_interests = academicInterests;
+        formData.activities = activities;
+        formData.specific_sports = specificSports;
+        
+        try {
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Creating...';
+            
+            // Call API to create enquiry
+            const response = await fetch('/api/admin/enquiries/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showNotification(`✅ Enquiry created successfully: ${result.enquiryId}`, 'success');
+                
+                // Close modal
+                closeNewEnquiryModal();
+                
+                // Reload enquiries list
+                await loadEnquiries();
+                
+                // Auto-open the new enquiry in view card
+                setTimeout(() => {
+                    viewEnquiryDetail(result.enquiryId);
+                }, 500);
+            } else {
+                throw new Error(result.error || 'Failed to create enquiry');
+            }
+            
+        } catch (error) {
+            console.error('Error creating enquiry:', error);
+            showNotification(`❌ Error: ${error.message}`, 'error');
+            
+            // Restore button state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✓ Create Enquiry';
+        }
+    }
+</script>
+</body>
+</html>

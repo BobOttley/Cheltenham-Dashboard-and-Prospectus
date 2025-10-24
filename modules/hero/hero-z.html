@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cheltenham College – 首屏模块</title>
+  <style>
+    :root{
+      --cc-navy:#1e3a5f;
+      --cc-navy-2:#2a4a6b;
+      --cc-gold:#c9a961;
+      --cc-text:#333;
+      --shadow-lg:0 8px 30px rgba(0,0,0,.1);
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
+
+    .hero-module{position:relative;height:100vh;overflow:hidden}
+    .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+    .hero-overlay{
+      position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:center;align-items:center;
+      color:#fff;text-align:center;padding:20px;transition:all .8s ease-out;
+      background:linear-gradient(to bottom, rgba(30,58,95,.7) 0%, rgba(30,58,95,.85) 50%, rgba(30,58,95,.9) 100%);
+    }
+    .hero-overlay.move-bottom{
+      justify-content:flex-end;padding:0 2rem 3rem;
+      background:linear-gradient(to bottom, rgba(30,58,95,0) 0%, rgba(30,58,95,.1) 50%, rgba(30,58,95,.8) 100%);
+    }
+    .hero-overlay.move-bottom .hero-title,
+    .hero-overlay.move-bottom .golden-bracket{display:none}
+    .hero-overlay.move-bottom .hero-welcome{font-size:1.8rem;margin-bottom:.8rem;max-width:100%}
+    .hero-overlay.move-bottom .hero-tagline{font-size:1.2rem;margin-bottom:.8rem;max-width:100%}
+    .hero-overlay.move-bottom .hero-additional-text{font-size:1.3rem!important;margin-top:.5rem!important;max-width:100%;line-height:1.4!important}
+
+    .golden-bracket{width:100px;height:auto;margin-top:2rem;margin-bottom:0;opacity:.9;animation:fadeIn 1s ease-out}
+    .hero-title{font-size:5rem;font-family:Georgia,'Times New Roman',serif;font-weight:300;letter-spacing:.05em;margin-bottom:2rem;animation:slideUp 1s ease-out .2s both}
+    .hero-title .ampersand{display:inline-block;color:var(--cc-gold);font-style:italic;font-size:1.1em;margin:0 .2em}
+    .hero-welcome{font-size:1.75rem;font-weight:300;letter-spacing:.02em;margin-bottom:1.5rem;animation:slideUp 1s ease-out .4s both}
+    .hero-tagline{text-transform:uppercase;font-size:1rem;letter-spacing:.3em;font-weight:600;color:var(--cc-gold);animation:slideUp 1s ease-out .6s both}
+
+    #audioToggle.audio-toggle{
+      position:absolute !important;top:2rem !important;right:2rem !important;z-index:4 !important;
+      width:auto !important;height:auto !important;min-width:140px !important;min-height:48px !important;
+      border-radius:6px !important;background:rgba(201, 169, 97, 0.9) !important;border:none !important;
+      cursor:pointer !important;transition:all .3s ease !important;display:flex !important;
+      align-items:center !important;justify-content:center !important;color:#fff !important;
+      font-size:16px !important;padding:16px 24px !important;font-weight:600 !important;
+      transform:scale(1.1) !important;
+    }
+    #audioToggle.audio-toggle:hover{
+      background:rgba(201, 169, 97, 1) !important;transform:scale(1.15) !important;
+    }
+    #audioToggle.audio-toggle:active{
+      transform:scale(1.05) !important;
+    }
+    .audio-icon{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+
+    .scroll-indicator{
+      position:absolute;bottom:2rem;right:3rem;z-index:3;color:#fff;font-size:.9rem;letter-spacing:.1em;
+      animation:bounce 2s infinite;opacity:0;transition:opacity .5s ease-in-out;cursor:pointer
+    }
+    .scroll-indicator.show{opacity:1}
+    .scroll-arrow{display:block;width:30px;height:30px;margin:10px auto 0;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
+
+    .welcome-section{padding:4rem .5rem;max-width:1600px;margin:0 auto;background:#fff}
+    .welcome-container{display:block;max-width:1400px;margin:0 auto}
+    .welcome-content h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(1.8rem,4vw,2.5rem);color:var(--cc-navy);margin-bottom:1.5rem;font-weight:300;line-height:1.2;text-align:center}
+    .welcome-content h2 .highlight{color:var(--cc-gold);font-style:italic}
+    .welcome-text{font-size:clamp(1rem,2vw,1.1rem);line-height:1.7;color:var(--cc-text);margin-bottom:1.5rem;word-wrap:break-word;hyphens:auto}
+    .welcome-text:first-of-type{font-size:clamp(1.1rem,2.2vw,1.2rem);font-weight:500;color:var(--cc-navy)}
+    .welcome-photo{float:right;width:600px;margin:0 0 2rem 2rem;text-align:center}
+    .head-photo{width:100%;border-radius:8px;box-shadow:var(--shadow-lg);transition:transform .3s ease}
+    .head-photo:hover{transform:translateY(-5px)}
+    .head-name{text-align:center;font-size:1.1rem;color:var(--cc-gold);margin-top:1.5rem;font-weight:500;font-style:italic}
+
+    .cta-section{background:linear-gradient(135deg,var(--cc-navy) 0%, var(--cc-navy-2) 100%);padding:4rem .5rem;text-align:center;color:#fff}
+    .cta-container{max-width:800px;margin:0 auto}
+    .cta-title{font-family:Georgia,'Times New Roman',serif;font-size:clamp(2rem,4vw,3rem);font-weight:300;margin-bottom:1.5rem;color:#fff}
+    .cta-title .highlight{color:var(--cc-gold);font-style:italic}
+    .cta-subtitle{font-size:clamp(1.1rem,2.5vw,1.3rem);margin-bottom:3rem;opacity:.9;line-height:1.6}
+    .cta-button{
+      display:inline-block;background:var(--cc-gold);color:#fff;padding:1rem 2.5rem;font-size:1.1rem;font-weight:600;text-decoration:none;border-radius:8px;
+      transition:all .3s ease;text-transform:uppercase;letter-spacing:.1em;box-shadow:0 4px 15px rgba(201,169,97,.3)
+    }
+    .cta-button:hover{background:#b8986e;transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,169,97,.4)}
+
+    @keyframes fadeIn{from{opacity:0}to{opacity:.9}}
+    @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-10px)}60%{transform:translateY(-5px)}}
+
+    @media (max-width: 768px){
+      .hero-title{font-size:3rem}
+      .hero-welcome{font-size:1.25rem}
+      .hero-tagline{font-size:.9rem;letter-spacing:.2em}
+      .golden-bracket{width:70px}
+      .audio-toggle{width:auto;height:auto;font-size:14px;top:1.5rem;right:1.5rem;padding:12px 18px;transform:scale(1.05)}
+      .audio-toggle:hover{transform:scale(1.1)}
+      .audio-toggle:active{transform:scale(1.0)}
+      .hero-overlay.move-bottom{padding:0 1rem 2rem}
+      .hero-overlay.move-bottom .hero-welcome{font-size:1.4rem}
+      .hero-overlay.move-bottom .hero-tagline{font-size:1rem}
+      .hero-overlay.move-bottom .hero-additional-text{font-size:1.1rem!important}
+      .scroll-indicator{right:1.5rem;font-size:.8rem}
+      .welcome-section{padding:3rem .25rem}
+      .welcome-photo{float:none;width:100%;max-width:400px;margin:2rem auto;display:block}
+      .welcome-content h2{font-size:clamp(1.5rem,5vw,2rem);text-align:center}
+      .welcome-text{font-size:clamp(.95rem,3vw,1rem)}
+      .cta-section{padding:3rem .25rem}
+      .cta-button{padding:.8rem 2rem;font-size:1rem}
+    }
+    @media (max-width:480px){
+      .hero-title{font-size:2.5rem}
+      .hero-welcome{font-size:1.1rem}
+      .audio-toggle{font-size:13px;padding:10px 15px;transform:scale(1.0)}
+      .audio-toggle:hover{transform:scale(1.05)}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .hero-video{animation:none}
+      .hero-overlay,.golden-bracket,.hero-title,.hero-welcome,.hero-tagline{animation:none}
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Module -->
+  <section class="hero-module">
+    <!-- Background Video -->
+    <video class="hero-video" autoplay muted loop playsinline>
+      <source src="https://mso-video.fra1.digitaloceanspaces.com/Cheltenham%20College%20Film%202023%20(No%20Front%20Logo).mp4" type="video/mp4"/>
+      您的浏览器不支持视频标签。
+    </video>
+
+    <!-- Content Overlay -->
+    <div class="hero-overlay" id="heroOverlay">
+      <h1 class="hero-title">Beyond <span class="ampersand">&</span> Above</h1>
+      <img class="golden-bracket" alt="" src="https://www.cheltenhamcollege.org/wp-content/themes/cheltenham-college/assets/src/img/reskin/bracket-gold.png"/>
+
+      <p class="hero-welcome" id="personalWelcome">
+        欢迎 <span class="child-name"></span> 与 <span class="family-name"></span>
+      </p>
+      <p class="hero-tagline">您的独特旅程从这里开始</p>
+      <p class="hero-additional-text" style="font-size:1.1rem;font-weight:300;letter-spacing:.02em;margin-top:1rem;opacity:.95;animation:slideUp 1s ease-out .8s both;">
+        每个孩子都有属于自己的故事。<br/>
+        每个家庭都带来独特的精彩。<br/>
+        这是一段属于您在 Cheltenham College 的个性化旅程。
+      </p>
+    </div>
+
+    <!-- Audio Toggle Button -->
+    <button class="audio-toggle" id="audioToggle" aria-label="切换音频">
+      <span class="audio-icon" id="audioIcon">
+        <!-- starts with text -->
+        点击开启声音
+      </span>
+    </button>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator" id="scrollIndicator" role="button" aria-label="滚动到下一部分">
+      <span>下滑</span><span class="scroll-arrow"></span>
+    </div>
+  </section>
+
+  <!-- Welcome Section -->
+  <section class="welcome-section">
+    <div class="welcome-container">
+      <div class="welcome-content">
+        <h2>来自 <span class="highlight">校长</span> 的欢迎</h2>
+
+        <p class="welcome-text">亲爱的 <span class="parent-name"></span>，非常高兴欢迎您阅读我们的个性化招生册。希望您能在这些页面中获得启发与安心。</p>
+
+        <p class="welcome-text">我们相信，没有两个孩子完全相同，也没有两个家庭完全相同。这正是我们为您打造这段个性化旅程的原因——每个孩子都值得被讲述独一无二的故事，走出属于自己的成长之路。</p>
+
+        <p class="welcome-text">Cheltenham 是一所充满活力与激情的学校，坚持传统价值，同时拥有非常现代的办学理念。我们以超越家长期待为荣，在支持 <span class="child-name"></span> 的过程中，帮助学生突破自我，实现更高目标。</p>
+
+        <div class="welcome-photo">
+          <img class="head-photo" alt="College Head" src="https://cheltenham-college.s3.eu-west-2.amazonaws.com/wp-content/uploads/2023/11/29141403/8-640x360.png"/>
+          <p class="head-name">Mrs Nicola Huggett</p>
+        </div>
+
+        <p class="welcome-text">我们持续取得优异的学术表现，得益于热爱学科、乐于教学的优秀教师团队。我们胸怀学术抱负，成绩便是最好的见证。<span class="academic-interest-note"></span></p>
+
+        <p class="welcome-text">在体育方面，我们同样成绩斐然——从主流项目到特色运动应有尽有。我们鼓励学生尝试新事物，并且有足够勇气面对错误。这里适合每一个人；当您了解这里的丰富选择后，或许也会希望重返学生时代。<span class="sport-interest-note"></span></p>
+
+        <p class="welcome-text">我们的学院制度与关怀体系卓越非凡，是一切工作的基石。<span class="pastoral-priority-note"></span> 若您今天询问任何一位 Cheltonian，他们都会谈到来自学院职员与导师的关爱与关注。我们致力于构建良好的师生关系；开放而放松的氛围激发教学与学习中的原创性与创造力。这种氛围孕育主体性——<span class="child-name"></span> 将被鼓励主动把握自己的成长轨迹，也因此为走向精彩未来做好准备。</p>
+
+        <p class="welcome-text">我们努力超越相识走向友谊，超越包容走向归属。归属是相互的。<span class="child-name"></span> 属于这里，而这里的一部分也将永远属于 <span class="child-name"></span>。友谊由此历久弥新。</p>
+
+        <p class="welcome-text">在 Cheltenham College，这里既允许犯错，也鼓励改正。我们通过鼓励多样体验来培育备受推崇的“全能型”学生。没有任何两天是相同的。我们相信，当 <span class="child-name"></span> 在一个领域变得出色时，常常也能迅速在其他（甚至不相关的）领域取得进步。一场备受赞赏的钢琴演奏可以助力数学考试的自信；运动场上的半世纪成绩亦能提升英文作文的发挥。当然，这一切归根结底是自信——敢于说“我能做到”，“我可以试试”。对自我的信念，以及他人对你的信任，构成完整的教育。这正是教育的意义，它塑造着一生的轨迹；而这也正是 Cheltenham College 的追求——一段超越与卓越的旅程。</p>
+
+        <p class="welcome-text">诚挚期待您的到访。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Section -->
+  <section class="cta-section">
+    <div class="cta-container">
+      <h2 class="cta-title">欢迎 <span class="highlight">&</span> 参观</h2>
+      <p class="cta-subtitle">
+        亲身体验 Cheltenham College 的非凡魅力。<br/>
+        预约您的个性化参观，了解 <span class="child-name"></span> 将如何在这里茁壮成长。
+      </p>
+      <a class="cta-button" href="https://www.cheltenhamcollege.org/admissions/visit-us/" target="_blank" rel="noopener">立即预约参观</a>
+    </div>
+  </section>
+
+  <script>
+    // -------------------------------
+    // Config
+    // -------------------------------
+    const TEST_MODE = false;
+    const TEST_DATA = {
+      childName:'Emma',
+      parentName:'Mr & Mrs Thompson',
+      familyName:'the Thompson family',
+      academicInterests:['sciences','mathematics'],
+      activities:['sports'],
+      boardingPreference:'Full Boarding',
+      priorities:{academic:3,sports:2,pastoral:3,activities:2}
+    };
+
+    // State (declared once)
+    let isMuted = true;
+    let video, audioIcon, heroOverlay, scrollIndicator;
+
+    // -------------------------------
+    // Data loader (robust precedence)
+    // -------------------------------
+    function getFormData(){
+      if (TEST_MODE) return TEST_DATA;
+
+      const parentData = (typeof window.parent !== 'undefined' && window.parent && window.parent.enquiryFormData) ? window.parent.enquiryFormData : null;
+      const ls = localStorage.getItem('enquiryFormData');
+      const lsData = ls ? JSON.parse(ls) : null;
+
+      return parentData || lsData || {
+        childName:"[Child's Name]",
+        parentName:"[Parent Name]",
+        familyName:"[Family Name]",
+        academicInterests:[],
+        activities:[],
+        boardingPreference:"",
+        priorities:{academic:2,sports:2,pastoral:2,activities:2}
+      };
+    }
+
+    function populatePersonalisedContent(){
+      const data = getFormData();
+
+      document.querySelectorAll('.child-name').forEach(el => el.textContent = data.childName || "[Child's Name]");
+      document.querySelectorAll('.parent-name').forEach(el => el.textContent = data.parentName || "[Parent Name]");
+      document.querySelectorAll('.family-name').forEach(el => el.textContent = data.familyName || "[Family Name]");
+
+      const academicNote = document.querySelector('.academic-interest-note');
+      if (academicNote && Array.isArray(data.academicInterests) && data.academicInterests.length){
+        let note = '';
+        if (data.academicInterests.includes('sciences')){
+          note = `I understand ${data.childName}'s interest in the Sciences - our laboratories are equipped to university standard and our Science department has an exceptional track record, with many pupils going on to read Medicine, Engineering and Natural Sciences at top universities.`;
+        } else if (data.academicInterests.includes('mathematics')){
+          note = `For a pupil with ${data.childName}'s mathematical interests, our setting from day one and extension opportunities including UKMT challenges will provide the perfect environment to excel.`;
+        } else if (data.academicInterests.includes('languages')){
+          note = `${data.childName}'s interest in languages will flourish here with our offering of French, Spanish, German, and Mandarin, plus regular exchanges and immersion trips.`;
+        } else if (data.academicInterests.includes('humanities')){
+          note = `Our Humanities departments would be perfect for ${data.childName} - from our Morley History Society to Geography field trips, we bring these subjects to life.`;
+        } else if (data.academicInterests.includes('arts')){
+          note = `${data.childName}'s creative interests align perfectly with our exceptional Art department and dedicated studio spaces.`;
+        }
+        academicNote.textContent = note;
+      }
+
+      const sportNote = document.querySelector('.sport-interest-note');
+      if (sportNote && Array.isArray(data.activities) && data.activities.includes('sports')){
+        sportNote.textContent = `I see ${data.childName} is interested in sport - with over 30 sports on offer and coaching from professionals including Olympians and internationals, every pupil finds their passion.`;
+      }
+
+      const pastoralNote = document.querySelector('.pastoral-priority-note');
+      if (pastoralNote){
+        if (data?.priorities?.pastoral === 3){
+          pastoralNote.textContent = `I'm particularly pleased you value pastoral care so highly - with our Floreat wellbeing programme, dedicated House staff living on-site, and a 1:8 tutor ratio, ${data.childName}'s wellbeing will always be our priority.`;
+        } else if (data.boardingPreference && data.boardingPreference.includes('Boarding')){
+          pastoralNote.textContent = `As a boarding family, you'll be reassured to know our House staff live on-site with their families, creating a true home from home.`;
+        }
+      }
+    }
+
+    // -------------------------------
+    // UI / interactions
+    // -------------------------------
+    function setMutedIcon(){
+      audioIcon.textContent = isMuted
+        ? '点击开启声音'
+        : '点击关闭声音';
+    }
+
+    function toggleAudio(){
+      isMuted = !isMuted;
+      if (video) video.muted = isMuted;
+      setMutedIcon();
+    }
+
+    function handleScroll(){
+      if (window.scrollY > 50 && video && !video.muted){
+        isMuted = true;
+        video.muted = true;
+        setMutedIcon();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      video = document.querySelector('.hero-video');
+      audioIcon = document.getElementById('audioIcon');
+      heroOverlay = document.getElementById('heroOverlay');
+      scrollIndicator = document.getElementById('scrollIndicator');
+
+      // Initialise video mute state
+      if (video) video.muted = isMuted;
+      setMutedIcon();
+
+      // Wire up audio toggle (use id, not inline onclick)
+      const audioBtn = document.getElementById('audioToggle');
+      if (audioBtn) audioBtn.addEventListener('click', toggleAudio);
+
+      // Move overlay after 12s, then show scroll hint
+      if (heroOverlay){
+        setTimeout(() => {
+          heroOverlay.classList.add('move-bottom');
+          if (scrollIndicator){
+            setTimeout(() => scrollIndicator.classList.add('show'), 300);
+          }
+        }, 12000);
+      }
+
+      // Scroll indicator click → smooth scroll
+      if (scrollIndicator){
+        scrollIndicator.addEventListener('click', () => {
+          window.scrollTo({top: window.innerHeight, behavior: 'smooth'});
+        });
+      }
+
+      // Scroll auto-mute
+      window.addEventListener('scroll', handleScroll, {passive:true});
+
+      // Populate personalisation text
+      populatePersonalisedContent();
+    });
+  </script>
+</body>
+</html>

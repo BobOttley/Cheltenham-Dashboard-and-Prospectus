@@ -1,0 +1,172 @@
+<!-- Smart Reply Email Interface Tab -->
+<style>
+    .smartreply-iframe-container {
+        width: 100%;
+        height: calc(100vh - 250px);
+        min-height: 600px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .smartreply-iframe {
+        width: 100%;
+        flex: 1;
+        border: none;
+    }
+    
+    .smartreply-header {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+        color: white;
+        padding: 20px 30px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .smartreply-header h2 {
+        font-size: 22px;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .smartreply-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .sr-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .sr-btn-secondary {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+    
+    .sr-btn-secondary:hover {
+        background: rgba(255,255,255,0.3);
+    }
+    
+    .sr-connection-warning {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .sr-connection-warning-icon {
+        font-size: 30px;
+    }
+    
+    .sr-connection-warning-content h3 {
+        color: #664d03;
+        margin-bottom: 5px;
+        font-size: 16px;
+    }
+    
+    .sr-connection-warning-content p {
+        color: #856404;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="smartreply-iframe-container" id="smartreply-container">
+    <div class="smartreply-header">
+        <h2>
+            <span>📧</span>
+            <span>Smart Reply - Email Manager</span>
+        </h2>
+        <div class="smartreply-actions">
+            <button class="sr-btn sr-btn-secondary" onclick="refreshSmartReplyFrame()">
+                🔄 Refresh
+            </button>
+            <button class="sr-btn sr-btn-secondary" onclick="openSmartReplyNewWindow()">
+                🔗 Open in New Window
+            </button>
+        </div>
+    </div>
+    <iframe 
+        id="smartreply-iframe" 
+        class="smartreply-iframe" 
+        src="/html/smartreply.html"
+        scrolling="yes"
+        title="Smart Reply Email Interface">
+    </iframe>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    
+    async function checkSmartReplyConnection() {
+        try {
+            const response = await fetch('/api/msauth/status', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+
+            if (!data.connected) {
+                showConnectionWarning();
+            }
+        } catch (error) {
+            console.error('Error checking Smart Reply connection:', error);
+        }
+    }
+    
+    function showConnectionWarning() {
+        const container = document.getElementById('smartreply-container');
+        container.innerHTML = `
+            <div class="sr-connection-warning">
+                <div class="sr-connection-warning-icon">⚠️</div>
+                <div class="sr-connection-warning-content">
+                    <h3>Microsoft Account Not Connected</h3>
+                    <p>You need to connect your Microsoft 365 account before using Smart Reply.</p>
+                    <button class="btn btn-primary" onclick="switchTab('smartreply-settings')">
+                        Go to Smart Reply Settings
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    window.refreshSmartReplyFrame = function() {
+        const iframe = document.getElementById('smartreply-iframe');
+        if (iframe) {
+            iframe.src = iframe.src;
+        }
+    };
+    
+    window.openSmartReplyNewWindow = function() {
+        window.open('/html/smartreply.html', '_blank', 'width=1400,height=900');
+    };
+    
+    // Check connection when module loads
+    window.initSmartReplyEmailModule = async function() {
+        console.log('Initializing Smart Reply Email module...');
+        await checkSmartReplyConnection();
+    };
+    
+    // Auto-initialize if container exists
+    if (document.getElementById('smartreply-container')) {
+        checkSmartReplyConnection();
+    }
+})();
+</script>

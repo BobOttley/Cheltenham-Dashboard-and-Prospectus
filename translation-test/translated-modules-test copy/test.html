@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Translation Test - ES</title>
+  <style>
+    body { font-family: system-ui; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    .banner { background: #1e3a5f; color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; }
+    .info { background: #f0f0f0; padding: 1rem; border-radius: 4px; margin-bottom: 2rem; }
+    .status { color: #28a745; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <h1>🇪🇸 Translation Test</h1>
+    <p>Testing hero and house_system modules in ES</p>
+  </div>
+  
+  <div class="info">
+    <p><span class="status">✅ Translation successful!</span></p>
+    <p>Test context: {
+  "childName": "Carlos",
+  "familyName": "García",
+  "parentName": "María García",
+  "gender": "male",
+  "boardingPreference": "Full Boarding",
+  "academicInterests": [
+    "sciences",
+    "mathematics"
+  ],
+  "activities": [
+    "sports",
+    "leadership"
+  ],
+  "priorities": {
+    "academic": 3,
+    "pastoral": 2,
+    "activities": 3
+  },
+  "universityAspirations": "Oxford or Cambridge"
+}</p>
+  </div>
+  
+  <div id="modules"></div>
+  
+  <script>
+    window.PROSPECTUS_CTX = {"childName":"Carlos","familyName":"García","parentName":"María García","gender":"male","boardingPreference":"Full Boarding","academicInterests":["sciences","mathematics"],"activities":["sports","leadership"],"priorities":{"academic":3,"pastoral":2,"activities":3},"universityAspirations":"Oxford or Cambridge"};
+    window.MODULES = {};
+    
+    async function loadModule(name, lang) {
+      // Load HTML
+      const htmlRes = await fetch(`./modules/${name}.${lang}.html`);
+      const html = await htmlRes.text();
+      
+      // Load JS (note: dynamic import might not work in all browsers from file://)
+      const jsRes = await fetch(`./js/modules/${name}.${lang}.js`);
+      const js = await jsRes.text();
+      
+      // Inject HTML
+      const container = document.createElement('div');
+      container.innerHTML = html;
+      document.getElementById('modules').appendChild(container);
+      
+      // Execute JS (eval for testing only)
+      eval(js);
+      
+      // Initialize if module registered itself
+      if (window.MODULES[name]) {
+        window.MODULES[name](container, window.PROSPECTUS_CTX);
+      }
+    }
+    
+    // Load modules
+    loadModule('hero', 'es');
+    loadModule('house_system', 'es');
+  </script>
+</body>
+</html>

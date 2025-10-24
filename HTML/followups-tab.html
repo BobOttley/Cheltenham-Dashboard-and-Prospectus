@@ -1,0 +1,24 @@
+<!-- FOLLOW-UPS TAB -->
+<h2 style="font-size: 24px; color: #1e3a5f; margin-bottom: 20px;">⏰ Follow-up Reminders</h2>
+
+<div class="followup-filter-tabs">
+    <button class="followup-filter-tab active" onclick="filterFollowups('all')">
+        All <span class="count" id="countAll">0</span>
+    </button>
+    <button class="followup-filter-tab" onclick="filterFollowups('overdue')">
+        Overdue <span class="count" id="countOverdue">0</span>
+    </button>
+    <button class="followup-filter-tab" onclick="filterFollowups('today')">
+        Today <span class="count" id="countToday">0</span>
+    </button>
+    <button class="followup-filter-tab" onclick="filterFollowups('upcoming')">
+        Upcoming <span class="count" id="countUpcoming">0</span>
+    </button>
+</div>
+
+<div id="followups-content">
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading follow-ups...</p>
+    </div>
+</div>

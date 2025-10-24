@@ -1,0 +1,56 @@
+/* ========================================
+   ANALYTICS TAB STYLES
+   ======================================== */
+
+   .chart-container {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.chart-title {
+    font-size: 18px;
+    color: #1e3a5f;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.chart {
+    height: 300px;
+    max-height: 300px;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+}
+
+/* Analytics responsive adjustments */
+@media (min-width: 1400px) {
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 1400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart {
+        height: 250px;
+    }
+    
+    .chart-container {
+        padding: 15px;
+    }
+}

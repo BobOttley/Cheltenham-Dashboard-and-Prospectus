@@ -1,0 +1,309 @@
+/* ===== FINAL HERO MODULE STYLES ===== */
+
+.mod.mod--final_hero {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+.fh-final-module {
+  position: relative;
+  min-height: 100vh;
+  background: #000;
+}
+
+/* Video Section with Overlay Text */
+.fh-hero-video-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.fh-video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Updated to use video element instead of iframe */
+.fh-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.fh-video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(30, 58, 95, 0.3) 0%,
+    rgba(30, 58, 95, 0.4) 50%,
+    rgba(30, 58, 95, 0.7) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Overlay Text Content */
+.fh-overlay-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  z-index: 3;
+  padding: 4rem 2rem;
+  transition: all 0.8s ease;
+}
+
+.fh-overlay-content.moved-down {
+  position: static;
+  transform: none;
+  opacity: 1;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2a4a6b 100%);
+  padding: 4rem 2rem;
+  height: auto;
+  width: 100%;
+}
+
+.fh-main-headline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 300;
+  margin-bottom: 2rem;
+  color: white;
+  line-height: 1.2;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.fh-main-headline .fh-highlight {
+  color: var(--cc-gold, #c9a961);
+  font-style: italic;
+}
+
+.fh-main-headline .child-name {
+  color: var(--cc-gold, #c9a961);
+  font-weight: 400;
+}
+
+.fh-main-subheadline {
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  margin-bottom: 3rem;
+  opacity: 0.95;
+  line-height: 1.6;
+  font-weight: 300;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.fh-personal-vision {
+  background: rgba(201, 169, 97, 0.2);
+  border: 1px solid rgba(201, 169, 97, 0.5);
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 0 auto;
+  max-width: 700px;
+  font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.7;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.fh-golden-bracket {
+  width: 80px;
+  height: auto;
+  margin: 2rem auto;
+  opacity: 0.9;
+}
+
+/* Audio Toggle Button - FIXED to match sports module exactly */
+.audio-toggle,
+#audioToggle {
+  position: absolute !important;
+  top: 2rem !important;
+  right: 2rem !important;
+  z-index: 1000 !important;
+  
+  /* CRITICAL: Fixed dimensions to prevent stretching */
+  width: auto !important;
+  height: auto !important;
+  min-width: 140px !important;
+  min-height: 48px !important;
+  max-width: 220px !important;
+  max-height: 60px !important;
+  
+  /* Styling */
+  background: rgba(201, 169, 97, 0.9) !important;
+  color: white !important;
+  border: none !important;
+  padding: 16px 24px !important;
+  border-radius: 6px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  
+  /* Layout */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+  pointer-events: auto !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transform: scale(1.1) !important;
+}
+
+.audio-toggle:hover,
+#audioToggle:hover {
+  background: rgba(201, 169, 97, 1) !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.audio-toggle:active,
+#audioToggle:active {
+  transform: scale(1.05) !important;
+}
+
+/* Scroll Indicator */
+.fh-scroll-indicator {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  animation: fhBounce 2s infinite;
+  color: white;
+  text-align: center;
+}
+
+@keyframes fhBounce {
+  0%, 20%, 50%, 80%, 100% { 
+    transform: translateX(-50%) translateY(0); 
+  }
+  40% { 
+    transform: translateX(-50%) translateY(-10px); 
+  }
+  60% { 
+    transform: translateX(-50%) translateY(-5px); 
+  }
+}
+
+.fh-scroll-arrow {
+  width: 30px;
+  height: 30px;
+  border-right: 2px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+  transform: rotate(45deg);
+  margin: 10px auto 0;
+}
+
+.fh-scroll-text {
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+/* Text Below Video Section */
+.fh-text-below-video {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s ease, visibility 1s ease;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2a4a6b 100%);
+  padding: 4rem 2rem;
+  color: white;
+  text-align: center;
+}
+
+.fh-text-below-video.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.fh-content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.fh-content-section {
+  background: white;
+  padding: 4rem 2rem;
+}
+
+.fh-description {
+  font-size: clamp(1.1rem, 2.2vw, 1.3rem);
+  line-height: 1.8;
+  color: #333;
+  max-width: 900px;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.fh-personal-conclusion {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.7;
+  font-style: italic;
+  color: #1e3a5f;
+  background: rgba(201, 169, 97, 0.1);
+  border-left: 4px solid #c9a961;
+  padding: 2rem;
+  margin: 3rem auto;
+  max-width: 800px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .audio-toggle,
+  #audioToggle {
+    top: 1rem !important;
+    right: 1rem !important;
+    padding: 12px 18px !important;
+    font-size: 14px !important;
+    min-width: 140px !important;
+    min-height: 44px !important;
+    max-width: 200px !important;
+    max-height: 50px !important;
+    transform: scale(1.05) !important;
+  }
+  
+  .audio-toggle:hover,
+  #audioToggle:hover {
+    transform: scale(1.1) !important;
+  }
+  
+  .fh-scroll-indicator {
+    bottom: 20px;
+  }
+  
+  .fh-scroll-text {
+    font-size: 0.8rem;
+  }
+}

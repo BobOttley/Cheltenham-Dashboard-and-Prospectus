@@ -1,0 +1,43 @@
+<!-- OPEN DAY MODAL -->
+<div id="openDayModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="openDayModalTitle">Add Open Day</h2>
+            <button class="close-btn" onclick="closeOpenDayModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="openDayForm" onsubmit="saveOpenDay(event)">
+                <input type="hidden" id="openDayId">
+                
+                <div class="form-group">
+                    <label for="eventName">Event Name *</label>
+                    <input type="text" id="eventName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDate">Date *</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventTime">Time</label>
+                    <input type="time" id="eventTime">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="bookingUrl">Booking URL</label>
+                    <input type="url" id="bookingUrl" placeholder="https://">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeOpenDayModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="document.getElementById('openDayForm').requestSubmit()">Save Open Day</button>
+        </div>
+    </div>
+</div>

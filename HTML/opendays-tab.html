@@ -1,0 +1,63 @@
+<!-- OPEN DAYS TAB CONTENT -->
+<div class="open-days-header">
+    <h2 style="font-size: 24px; color: #1e3a5f;">Open Days Management</h2>
+    <button class="btn btn-primary" onclick="openAddOpenDayModal()">+ Add Open Day</button>
+</div>
+
+<div class="filter-controls">
+    <label>
+        <input type="checkbox" id="showPastEvents" onchange="loadOpenDays()">
+        Show past events
+    </label>
+</div>
+
+<div id="opendays-content">
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading open days...</p>
+    </div>
+</div>
+
+<!-- OPEN DAY MODAL (must be included in the tab HTML) -->
+<div id="openDayModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="openDayModalTitle">Add Open Day</h2>
+            <button class="close-btn" onclick="closeOpenDayModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="openDayForm" onsubmit="saveOpenDay(event)">
+                <input type="hidden" id="openDayId">
+                
+                <div class="form-group">
+                    <label for="eventName">Event Name *</label>
+                    <input type="text" id="eventName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDate">Date *</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventTime">Time</label>
+                    <input type="time" id="eventTime">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="bookingUrl">Booking URL</label>
+                    <input type="url" id="bookingUrl" placeholder="https://">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeOpenDayModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="document.getElementById('openDayForm').requestSubmit()">Save Open Day</button>
+        </div>
+    </div>
+</div>

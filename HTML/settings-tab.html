@@ -1,0 +1,70 @@
+<!-- SETTINGS TAB CONTENT -->
+<div class="settings-container">
+    <div class="setting-card">
+        <div class="setting-header">
+            <h2 class="setting-title">Prospectus Auto-Display</h2>
+        </div>
+        
+        <div class="setting-description">
+            Control whether prospectus pages are automatically shown to parents after they submit an enquiry form.
+        </div>
+        
+        <div class="setting-status">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span id="statusText">Loading...</span>
+        </div>
+        
+        <div class="toggle-container">
+            <label class="toggle-switch">
+                <input type="checkbox" id="autoDisplayToggle" onchange="updateSettings()">
+                <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label" id="toggleLabel">Loading...</span>
+        </div>
+    </div>
+
+    <div class="setting-card">
+        <div class="setting-header">
+            <h2 class="setting-title">Email Template</h2>
+        </div>
+        
+        <div class="setting-description">
+            Customize the email template sent to parents. Use the variables below to personalize emails.
+        </div>
+        
+        <div class="template-variables">
+            <h4>Available Variables:</h4>
+            <span class="variable-tag">{{parent_name}}</span>
+            <span class="variable-tag">{{child_name}}</span>
+            <span class="variable-tag">{{family_surname}}</span>
+            <span class="variable-tag">{{form_entry}}</span>
+            <span class="variable-tag">{{prospectus_link}}</span>
+            <span class="variable-tag">{{school_name}}</span>
+        </div>
+        
+        <div class="template-editor">
+            <textarea id="emailTemplateText" placeholder="Email template...">Dear {{parent_name}},
+
+Thank you for your interest in Cheltenham College for {{child_name}}.
+
+We have prepared a personalized prospectus based on {{child_name}}'s interests and {{form_entry}} entry.
+
+View your personalized prospectus here: {{prospectus_link}}
+
+If you have any questions or would like to arrange a visit, please don't hesitate to contact us.
+
+Best regards,
+The Admissions Team
+Cheltenham College</textarea>
+        </div>
+        
+        <button class="btn btn-primary" onclick="saveEmailTemplate()">Save Template</button>
+    </div>
+    
+    <div class="settings-warning">
+        <strong>⚠️ Important:</strong>
+        <p>
+            Changes to settings affect new enquiries only. Existing prospectus links remain accessible.
+        </p>
+    </div>
+</div>

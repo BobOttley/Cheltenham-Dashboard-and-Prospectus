@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: transparent;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 1200px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            color: #1e3a5f;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .modal-subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            font-size: 32px;
+            color: #94a3b8;
+            line-height: 1;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #475569;
+        }
+
+        .analytics-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .summary-box {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .summary-box.gold {
+            border-left-color: #c9a961;
+        }
+
+        .summary-box.green {
+            border-left-color: #10b981;
+        }
+
+        .summary-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3a5f;
+            margin-bottom: 16px;
+        }
+
+        .session-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .session-timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #3b82f6, #e2e8f0);
+        }
+
+        .session-item {
+            position: relative;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .session-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .session-item::before {
+            content: '';
+            position: absolute;
+            left: -22px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            background: #3b82f6;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        .session-item.active::before {
+            background: #10b981;
+            box-shadow: 0 0 0 2px #10b981;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .session-date {
+            font-weight: 600;
+            color: #1e3a5f;
+            font-size: 15px;
+        }
+
+        .session-duration {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .duration-badge {
+            padding: 4px 10px;
+            background: #dbeafe;
+            color: #075985;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .session-status-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 8px;
+        }
+
+        .session-status-badge.active {
+            background: #10b981;
+            color: white;
+        }
+
+        .session-status-badge.ended {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .session-modules {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .module-badge {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .module-details-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .module-detail-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 16px;
+            align-items: center;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .module-detail-name {
+            font-weight: 600;
+            color: #1e3a5f;
+        }
+
+        .module-detail-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-box-value {
+            font-weight: 700;
+            color: #1e3a5f;
+            font-size: 18px;
+        }
+
+        .stat-box-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .no-data-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Module Analytics</h2>
+                    <p class="modal-subtitle" id="enquiryName"></p>
+                </div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="analytics-summary">
+                <div class="summary-box">
+                    <div class="summary-value" id="totalSessions">0</div>
+                    <div class="summary-label">Total Sessions</div>
+                </div>
+                <div class="summary-box gold">
+                    <div class="summary-value" id="totalTime">0m</div>
+                    <div class="summary-label">Total Time</div>
+                </div>
+                <div class="summary-box green">
+                    <div class="summary-value" id="uniqueModules">0</div>
+                    <div class="summary-label">Modules Viewed</div>
+                </div>
+            </div>
+
+            <!-- Session History -->
+            <div class="section">
+                <h3 class="section-title">Session History</h3>
+                <div id="sessionHistory">
+                    <div class="loading">Loading sessions...</div>
+                </div>
+            </div>
+
+            <!-- Module Details -->
+            <div class="section">
+                <h3 class="section-title">Module Details</h3>
+                <div id="moduleDetails">
+                    <div class="loading">Loading module details...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEnquiryId = null;
+
+        // Listen for messages from parent window
+        window.addEventListener('message', function(event) {
+            if (event.data.action === 'openAnalytics') {
+                openModal(event.data.enquiryId, event.data.enquiryName);
+            }
+        });
+
+        function openModal(enquiryId, enquiryName) {
+            currentEnquiryId = enquiryId;
+            document.getElementById('enquiryName').textContent = enquiryName || 'Viewing analytics';
+            document.getElementById('modalOverlay').classList.add('show');
+            loadAnalytics(enquiryId);
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            currentEnquiryId = null;
+        }
+
+        // Close when clicking outside
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        async function loadAnalytics(enquiryId) {
+            try {
+                const [sessionsRes, modulesRes] = await Promise.all([
+                    fetch(`/api/enquiry/${enquiryId}/sessions`),
+                    fetch(`/api/enquiry/${enquiryId}/modules-detailed`)
+                ]);
+                
+                const sessionsData = await sessionsRes.json();
+                const modulesData = await modulesRes.json();
+                
+                if (sessionsData.success && modulesData.success) {
+                    renderSummary(sessionsData.sessions, modulesData.modules);
+                    renderSessions(sessionsData.sessions);
+                    renderModules(modulesData.modules);
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showError();
+            }
+        }
+
+        function renderSummary(sessions, modules) {
+            const totalSessions = sessions.length;
+            const totalTime = sessions.reduce((sum, s) => sum + (s.total_time_seconds || 0), 0);
+            const totalMinutes = Math.floor(totalTime / 60);
+            const uniqueModules = new Set(sessions.flatMap(s => s.modules || [])).size;
+            
+            document.getElementById('totalSessions').textContent = totalSessions;
+            document.getElementById('totalTime').textContent = `${totalMinutes}m`;
+            document.getElementById('uniqueModules').textContent = uniqueModules;
+        }
+
+        function renderSessions(sessions) {
+            const container = document.getElementById('sessionHistory');
+            
+            if (sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data-message">
+                        <div class="no-data-icon">📊</div>
+                        <p style="font-weight: 500; color: #475569; margin-bottom: 8px;">No viewing sessions yet</p>
+                        <p style="font-size: 14px;">Sessions will appear here once the prospectus is opened</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const timeline = document.createElement('div');
+            timeline.className = 'session-timeline';
+            
+            sessions.forEach(session => {
+                const isActive = !session.ended_at;
+                const startDate = new Date(session.started_at);
+                const duration = session.total_time_seconds || 0;
+                const durationMins = Math.floor(duration / 60);
+                const durationSecs = duration % 60;
+                
+                const sessionEl = document.createElement('div');
+                sessionEl.className = `session-item ${isActive ? 'active' : ''}`;
+                
+                sessionEl.innerHTML = `
+                    <div class="session-header">
+                        <div>
+                            <div class="session-date">
+                                ${startDate.toLocaleDateString('en-GB', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                })}
+                            </div>
+                            <div class="session-duration">
+                                ${startDate.toLocaleTimeString('en-GB', { 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                })}
+                                ${isActive ? 
+                                    '<span class="session-status-badge active">Active Now</span>' : 
+                                    '<span class="session-status-badge ended">Ended</span>'
+                                }
+                            </div>
+                        </div>
+                        <div class="duration-badge">
+                            ${durationMins}m ${durationSecs}s
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">
+                        ${session.modules_viewed} module${session.modules_viewed !== 1 ? 's' : ''} viewed
+                    </div>
+                    
+                    <div class="session-modules">
+                        ${(session.modules || []).map(module => `
+                            <div class="module-badge">
+                                ${formatModuleName(module)}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                timeline.appendChild(sessionEl);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(timeline);
+        }
+
+        function renderModules(modules) {
+            const container = document.getElementById('moduleDetails');
+            
+            if (modules.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data-message">
+                        <div class="no-data-icon">📄</div>
+                        <p style="font-weight: 500; color: #475569;">No modules viewed yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const grid = document.createElement('div');
+            grid.className = 'module-details-grid';
+            
+            modules.forEach(module => {
+                const totalMins = Math.floor(module.time_spent_seconds / 60);
+                const totalSecs = module.time_spent_seconds % 60;
+                const avgMins = Math.floor((module.avg_time_per_view || 0) / 60);
+                const avgSecs = Math.floor((module.avg_time_per_view || 0) % 60);
+                
+                const moduleEl = document.createElement('div');
+                moduleEl.className = 'module-detail-item';
+                
+                moduleEl.innerHTML = `
+                    <div class="module-detail-name">
+                        ${formatModuleName(module.module_name)}
+                    </div>
+                    <div class="module-detail-stats">
+                        <div class="stat-box">
+                            <div class="stat-box-value">${module.view_count}</div>
+                            <div class="stat-box-label">Views</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-value">${totalMins}m ${totalSecs}s</div>
+                            <div class="stat-box-label">Total Time</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-box-value">${avgMins}m ${avgSecs}s</div>
+                            <div class="stat-box-label">Avg/View</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b;">
+                        Last: ${getTimeAgo(new Date(module.last_viewed_at))}
+                    </div>
+                `;
+                
+                grid.appendChild(moduleEl);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(grid);
+        }
+
+        function formatModuleName(name) {
+            return name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+            
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
+                }
+            }
+            return 'just now';
+        }
+
+        function showError() {
+            document.getElementById('sessionHistory').innerHTML = `
+                <div class="no-data-message">
+                    <div class="no-data-icon">⚠️</div>
+                    <p style="font-weight: 500; color: #ef4444;">Failed to load analytics</p>
+                </div>
+            `;
+            document.getElementById('moduleDetails').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1181 @@
+<!-- Smart Reply Tab Module - COMPLETE VERSION with Image Support -->
+<style>
+    .sr-header {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+    
+    .sr-header h2 {
+        font-size: 24px;
+        margin: 0 0 5px 0;
+    }
+    
+    .sr-header p {
+        opacity: 0.9;
+        font-size: 14px;
+        margin: 0;
+    }
+    
+    .sr-card {
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+    }
+    
+    .sr-status-box {
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .sr-status-box.connected {
+        background: #d1f4e0;
+        border: 2px solid #0f5132;
+        color: #0f5132;
+    }
+    
+    .sr-status-box.not-connected {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        color: #664d03;
+    }
+    
+    .sr-status-box.loading {
+        background: #e7f3ff;
+        border: 2px solid #0066cc;
+        color: #004085;
+    }
+    
+    .sr-status-icon {
+        font-size: 40px;
+    }
+    
+    .sr-status-content {
+        flex: 1;
+    }
+    
+    .sr-status-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .sr-status-email {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+    
+    .sr-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .sr-btn-primary {
+        background: #0078d4;
+        color: white;
+    }
+    
+    .sr-btn-primary:hover {
+        background: #005a9e;
+    }
+    
+    .sr-btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .sr-btn-danger:hover {
+        background: #a61e22;
+    }
+    
+    .sr-btn-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .sr-btn-success:hover {
+        background: #218838;
+    }
+    
+    .sr-btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .sr-btn-secondary:hover {
+        background: #545b62;
+    }
+    
+    .sr-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .sr-info-box {
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        padding: 20px;
+        border-radius: 6px;
+    }
+    
+    .sr-info-box h3 {
+        color: #004085;
+        margin: 0 0 10px 0;
+        font-size: 16px;
+    }
+    
+    .sr-info-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .sr-info-box li {
+        padding: 5px 0;
+        color: #004085;
+        font-size: 14px;
+    }
+    
+    .sr-info-box li:before {
+        content: "✓ ";
+        color: #28a745;
+        font-weight: bold;
+        margin-right: 8px;
+    }
+    
+    .sr-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+    
+    /* Signature Settings Styles */
+    .sr-signature-settings {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .sr-signature-settings h4 {
+        margin: 0 0 15px 0;
+        color: #1e3a5f;
+        font-size: 16px;
+    }
+    
+    .sr-form-group {
+        margin-bottom: 15px;
+    }
+    
+    .sr-form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #495057;
+    }
+    
+    .sr-form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        resize: vertical;
+    }
+    
+    .sr-form-group textarea:focus {
+        outline: none;
+        border-color: #0078d4;
+        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+    }
+    
+    .sr-signature-preview {
+        margin-top: 15px;
+        padding: 15px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        min-height: 60px;
+    }
+    
+    .sr-signature-preview h5 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    /* Image Upload Styles */
+    .sr-image-upload {
+        margin: 15px 0;
+        padding: 15px;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+    
+    .sr-image-upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #17a2b8;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .sr-image-upload-btn:hover {
+        background: #138496;
+    }
+    
+    .sr-image-preview {
+        margin-top: 15px;
+        display: none;
+    }
+    
+    .sr-image-preview img {
+        max-width: 200px;
+        max-height: 100px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 5px;
+        background: white;
+    }
+    
+    .sr-image-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        align-items: center;
+    }
+    
+    .sr-image-size-input {
+        width: 80px;
+        padding: 5px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+    
+    .sr-image-remove-btn {
+        padding: 5px 10px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+    
+    .sr-image-remove-btn:hover {
+        background: #c82333;
+    }
+    
+    /* Template Buttons */
+    .sr-template-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .sr-template-btn {
+        padding: 6px 12px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+    
+    .sr-template-btn:hover {
+        background: #e9ecef;
+        border-color: #adb5bd;
+    }
+    
+    .sr-auto-refresh-settings {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f0f8ff;
+        border-radius: 8px;
+        border: 1px solid #b8daff;
+    }
+    
+    .sr-auto-refresh-settings h4 {
+        margin: 0 0 15px 0;
+        color: #004085;
+        font-size: 16px;
+    }
+    
+    .sr-form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .sr-form-check input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .sr-form-check label {
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .sr-form-group select {
+        width: 200px;
+        padding: 8px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .sr-help-text {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
+
+<!-- Header -->
+<div class="sr-header">
+    <h2>📧 Smart Reply Email Configuration</h2>
+    <p>Connect your Microsoft 365 account and configure email settings</p>
+</div>
+
+<!-- CONNECTION STATUS CARD - MAIN FEATURE -->
+<div class="sr-card">
+    <div id="sr-status-container">
+        <div class="sr-status-box loading">
+            <div class="sr-status-icon">⏳</div>
+            <div class="sr-status-content">
+                <div class="sr-status-title">Checking connection status...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Signature Settings Card with Image Support -->
+<div class="sr-card">
+    <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #1e3a5f;">📝 Email Signature</h3>
+    <div class="sr-signature-settings">
+        <!-- Template Buttons -->
+        <div class="sr-template-buttons">
+            <button class="sr-template-btn" onclick="loadSignatureTemplate('professional')">
+                💼 Professional
+            </button>
+            <button class="sr-template-btn" onclick="loadSignatureTemplate('simple')">
+                📄 Simple
+            </button>
+            <button class="sr-template-btn" onclick="loadSignatureTemplate('detailed')">
+                📋 Detailed
+            </button>
+            <button class="sr-template-btn" onclick="loadSignatureTemplate('withLogo')">
+                🖼️ With Logo
+            </button>
+        </div>
+        
+        <div class="sr-form-group">
+            <label for="sr-signature-text">Your Email Signature (HTML supported)</label>
+            <textarea id="sr-signature-text" rows="8" placeholder="Enter your email signature here...
+You can use HTML tags for formatting:
+<b>Bold text</b>
+<i>Italic text</i>
+<a href='https://website.com'>Link</a>
+<img src='https://example.com/logo.png' width='100'>
+
+Or use the templates above to get started!"></textarea>
+            <div class="sr-help-text">
+                💡 Tip: You can paste HTML directly or use the image upload button below to add logos/photos
+            </div>
+        </div>
+        
+        <!-- Image Upload Section -->
+        <div class="sr-image-upload">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 14px;">
+                Add Image/Logo to Signature
+            </label>
+            <input type="file" id="sr-image-file" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+            <button class="sr-image-upload-btn" onclick="document.getElementById('sr-image-file').click()">
+                📷 Upload Image
+            </button>
+            <button class="sr-btn sr-btn-primary" style="margin-left: 10px;" onclick="addImageUrl()">
+                🔗 Use Image URL
+            </button>
+            <span style="margin-left: 10px; font-size: 13px; color: #6c757d;">
+                (URL recommended for better email delivery)
+            </span>
+            
+            <div id="sr-image-preview" class="sr-image-preview">
+                <img id="sr-preview-img" src="" alt="Preview">
+                <div class="sr-image-controls">
+                    <label style="font-size: 13px;">Width:</label>
+                    <input type="number" class="sr-image-size-input" id="sr-image-width" value="150" min="50" max="500" onchange="updateImageSize()">
+                    <span style="font-size: 13px;">px</span>
+                    <button class="sr-image-remove-btn" onclick="removeImage()">Remove</button>
+                </div>
+                <button class="sr-btn sr-btn-secondary" style="margin-top: 10px; padding: 6px 12px; font-size: 13px;" onclick="insertImageToSignature()">
+                    ➕ Add to Signature
+                </button>
+            </div>
+        </div>
+        
+        <div class="sr-signature-preview" id="sr-signature-preview">
+            <h5>Preview:</h5>
+            <div id="sr-signature-preview-content">
+                <em style="color: #6c757d;">Your signature will appear here...</em>
+            </div>
+        </div>
+        
+        <div class="sr-actions">
+            <button class="sr-btn sr-btn-success" onclick="saveSignature()">
+                💾 Save Signature
+            </button>
+            <button class="sr-btn sr-btn-secondary" onclick="clearSignature()">
+                🗑️ Clear Signature
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Auto-Refresh Settings Card -->
+<div class="sr-card">
+    <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #1e3a5f;">🔄 Auto-Refresh Settings</h3>
+    <div class="sr-auto-refresh-settings">
+        <div class="sr-form-check">
+            <input type="checkbox" id="sr-auto-refresh-enabled" checked>
+            <label for="sr-auto-refresh-enabled">
+                Enable automatic email refresh
+            </label>
+        </div>
+        
+        <div class="sr-form-group" id="sr-refresh-interval-group">
+            <label for="sr-refresh-interval">Refresh interval:</label>
+            <select id="sr-refresh-interval">
+                <option value="30">Every 30 seconds</option>
+                <option value="60" selected>Every minute</option>
+                <option value="120">Every 2 minutes</option>
+                <option value="300">Every 5 minutes</option>
+                <option value="600">Every 10 minutes</option>
+            </select>
+        </div>
+        
+        <div class="sr-form-check">
+            <input type="checkbox" id="sr-auto-refresh-on-login" checked>
+            <label for="sr-auto-refresh-on-login">
+                Start auto-refresh when admin.html loads
+            </label>
+        </div>
+        
+        <button class="sr-btn sr-btn-primary" onclick="saveAutoRefreshSettings()">
+            💾 Save Refresh Settings
+        </button>
+    </div>
+</div>
+
+<!-- Info Card -->
+<div class="sr-card">
+    <div class="sr-info-box">
+        <h3>ℹ️ About Microsoft 365 Integration</h3>
+        <ul>
+            <li>Secure OAuth 2.0 authentication (no passwords stored)</li>
+            <li>Works with Multi-Factor Authentication (MFA)</li>
+            <li>Read and send emails from your account</li>
+            <li>Automatic token refresh (stays connected)</li>
+            <li>Email signatures with images and HTML formatting</li>
+            <li>Auto-refresh keeps inbox up-to-date</li>
+            <li>You can disconnect at any time</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="sr-card">
+    <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #1e3a5f;">Quick Actions</h3>
+    <div class="sr-actions">
+        <button class="sr-btn sr-btn-primary" onclick="openEmailInterface()">
+            📧 Open Email Manager
+        </button>
+        <button class="sr-btn sr-btn-primary" onclick="testEmailConnection()">
+            🧪 Test Connection
+        </button>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    
+    let microsoftPopup = null;
+    let uploadedImageData = null;
+    
+    // Signature Templates
+    const signatureTemplates = {
+        professional: `<div style="font-family: Arial, sans-serif; color: #333;">
+<strong>John Smith</strong><br>
+<em>Admissions Manager</em><br>
+<br>
+<strong>Prestigious School Name</strong><br>
+📧 admissions@school.edu<br>
+📞 +44 123 456 7890<br>
+🌐 <a href="https://www.school.edu" style="color: #0066cc;">www.school.edu</a>
+</div>`,
+        
+        simple: `Best regards,<br>
+<br>
+John Smith<br>
+Admissions Team<br>
+admissions@school.edu`,
+        
+        detailed: `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+<table cellpadding="0" cellspacing="0">
+<tr>
+<td style="padding-right: 15px; border-right: 2px solid #1e3a5f;">
+<strong style="color: #1e3a5f; font-size: 16px;">John Smith</strong><br>
+<span style="color: #666;">Admissions Manager</span>
+</td>
+<td style="padding-left: 15px;">
+<strong>Prestigious School Name</strong><br>
+123 Education Street, London, UK<br>
+📧 admissions@school.edu | 📞 +44 123 456 7890<br>
+🌐 <a href="https://www.school.edu" style="color: #0066cc;">www.school.edu</a>
+</td>
+</tr>
+</table>
+<br>
+<em style="font-size: 12px; color: #666;">This email and any attachments are confidential</em>
+</div>`,
+        
+        withLogo: `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+<table cellpadding="0" cellspacing="0">
+<tr>
+<td style="padding-right: 20px;">
+<img src="https://via.placeholder.com/100x100/1e3a5f/ffffff?text=LOGO" alt="School Logo" style="width: 100px; height: 100px;">
+</td>
+<td>
+<strong style="color: #1e3a5f; font-size: 16px;">John Smith</strong><br>
+<span style="color: #666;">Admissions Manager</span><br>
+<br>
+<strong>Prestigious School Name</strong><br>
+📧 admissions@school.edu<br>
+📞 +44 123 456 7890<br>
+🌐 <a href="https://www.school.edu" style="color: #0066cc;">www.school.edu</a>
+</td>
+</tr>
+</table>
+</div>`
+    };
+    
+    // Smart Template System - Replace the loadSignatureTemplate function ONLY
+// Keep the existing signatureTemplates object, just replace this one function
+
+window.loadSignatureTemplate = function(templateName) {
+    const signatureText = document.getElementById('sr-signature-text');
+    const currentSignature = signatureText.value.trim();
+    
+    // If signature is empty or just the demo template, use demo templates
+    if (!currentSignature || currentSignature.includes('John Smith') || currentSignature.includes('Admissions')) {
+        // Use demo templates
+        const template = signatureTemplates[templateName];
+        if (template) {
+            signatureText.value = template;
+            updateSignaturePreview();
+            showNotification('Template loaded! Customize it with your details.', 'info');
+        }
+        return;
+    }
+    
+    // User has a real signature - apply styling to their content
+    const lines = currentSignature
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<[^>]*>/g, '')
+        .split('\n')
+        .filter(line => line.trim());
+    
+    // Extract image if exists
+    const imgMatch = currentSignature.match(/<img[^>]+src="([^"]+)"[^>]*>/i);
+    const imageUrl = imgMatch ? imgMatch[1] : null;
+    const fullText = lines.join('<br>');
+    
+    let styledSignature = '';
+    
+    switch(templateName) {
+        case 'professional':
+            styledSignature = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+${fullText}
+</div>`;
+            break;
+            
+        case 'simple':
+            styledSignature = fullText;
+            break;
+            
+        case 'detailed':
+            const firstLine = lines[0] || '';
+            const secondLine = lines[1] || '';
+            const restLines = lines.slice(2).join('<br>');
+            
+            styledSignature = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+<table cellpadding="0" cellspacing="0">
+<tr>
+<td style="padding-right: 15px; border-right: 2px solid #1e3a5f;">
+<strong style="color: #1e3a5f; font-size: 16px;">${firstLine}</strong><br>
+<span style="color: #666;">${secondLine}</span>
+</td>
+<td style="padding-left: 15px;">
+${restLines}
+</td>
+</tr>
+</table>
+</div>`;
+            break;
+            
+        case 'withLogo':
+            const logoPlaceholder = imageUrl || 'https://via.placeholder.com/100x100/1e3a5f/ffffff?text=LOGO';
+            
+            styledSignature = `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+<table cellpadding="0" cellspacing="0">
+<tr>
+<td style="padding-right: 20px; vertical-align: top;">
+<img src="${logoPlaceholder}" alt="Logo" style="width: 100px; height: auto;">
+</td>
+<td style="vertical-align: top;">
+${fullText}
+</td>
+</tr>
+</table>
+</div>`;
+            break;
+    }
+    
+    // Add image at bottom if exists and not withLogo template
+    if (imageUrl && templateName !== 'withLogo') {
+        styledSignature += `<br><img src="${imageUrl}" alt="Logo" style="width: 150px; height: auto;">`;
+    }
+    
+    signatureText.value = styledSignature;
+    updateSignaturePreview();
+    saveSignature();
+    
+    showNotification(`✅ ${templateName.charAt(0).toUpperCase() + templateName.slice(1)} style applied to your signature!`, 'success');
+};
+    
+    // Add image URL directly
+    window.addImageUrl = function() {
+    const url = prompt('Enter the image URL (e.g., https://yoursite.com/logo.png):');
+    if (url) {
+        const width = prompt('Enter image width in pixels (e.g., 150):', '150');
+        const imageHtml = `<img src="${url}" alt="Logo" style="width: ${width}px; height: auto;">`;
+        
+        const signatureText = document.getElementById('sr-signature-text');
+        
+        // Check if there's a placeholder image and replace it
+        if (signatureText.value.includes('via.placeholder.com')) {
+            // Replace placeholder with actual image
+            signatureText.value = signatureText.value.replace(
+                /<img[^>]+src="https:\/\/via\.placeholder\.com[^"]*"[^>]*>/gi,
+                imageHtml
+            );
+            showNotification('✅ Placeholder replaced with your image!', 'success');
+        } else {
+            // No placeholder, just add the image
+            signatureText.value = signatureText.value + '\n' + imageHtml;
+            showNotification('✅ Image URL added to signature!', 'success');
+        }
+        
+        updateSignaturePreview();
+        saveSignature();
+    }
+};
+    
+    // Auto-resize image upload function
+// Replace the handleImageUpload function in smartreply-settings-tab.html
+
+window.handleImageUpload = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Show processing notification for large images
+    if (file.size > 500000) {
+        showNotification('Image is large, resizing...', 'info');
+    }
+    
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Create canvas for resizing
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate new dimensions (max 800px width, maintain aspect ratio)
+            let width = img.width;
+            let height = img.height;
+            const maxWidth = 800;
+            
+            if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Draw resized image
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convert to base64 with quality adjustment
+            let quality = 0.8;
+            let resizedBase64 = canvas.toDataURL('image/jpeg', quality);
+            
+            // If still too large, reduce quality further
+            while (resizedBase64.length > 666666 && quality > 0.1) { // 666666 chars ≈ 500KB base64
+                quality -= 0.1;
+                resizedBase64 = canvas.toDataURL('image/jpeg', quality);
+            }
+            
+            uploadedImageData = resizedBase64;
+            document.getElementById('sr-preview-img').src = uploadedImageData;
+            document.getElementById('sr-image-preview').style.display = 'block';
+            
+            const finalSizeKB = Math.round(resizedBase64.length * 0.75 / 1024); // Approximate KB
+            showNotification(`✅ Image optimized (${finalSizeKB}KB)! Adjust size and click "Add to Signature"`, 'success');
+        };
+        
+        img.onerror = function() {
+            showNotification('Failed to load image. Please try another file.', 'error');
+        };
+        
+        img.src = e.target.result;
+    };
+    
+    reader.onerror = function() {
+        showNotification('Failed to read file. Please try again.', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+};
+    
+    
+    // Insert image to signature
+    window.insertImageToSignature = function() {
+    if (!uploadedImageData) {
+        showNotification('Please upload an image first', 'error');
+        return;
+    }
+    
+    const width = document.getElementById('sr-image-width').value || 150;
+    const imageHtml = `<img src="${uploadedImageData}" alt="Signature Image" style="width: ${width}px; height: auto;">`;
+    
+    const signatureText = document.getElementById('sr-signature-text');
+    
+    // Check if there's a placeholder image and replace it
+    if (signatureText.value.includes('via.placeholder.com')) {
+        // Replace placeholder with actual image
+        signatureText.value = signatureText.value.replace(
+            /<img[^>]+src="https:\/\/via\.placeholder\.com[^"]*"[^>]*>/gi,
+            imageHtml
+        );
+        showNotification('✅ Placeholder replaced with your image!', 'success');
+    } else {
+        // No placeholder, just add the image
+        signatureText.value = signatureText.value + '\n' + imageHtml;
+        showNotification('✅ Image added to signature!', 'success');
+    }
+    
+    // Update preview
+    updateSignaturePreview();
+    
+    // IMPORTANT: Save immediately to database
+    saveSignature();
+};
+    
+    // Update image size in preview
+    window.updateImageSize = function() {
+        const width = document.getElementById('sr-image-width').value;
+        document.getElementById('sr-preview-img').style.width = width + 'px';
+    };
+    
+    // Remove uploaded image
+    window.removeImage = function() {
+        uploadedImageData = null;
+        document.getElementById('sr-image-preview').style.display = 'none';
+        document.getElementById('sr-image-file').value = '';
+    };
+    
+    // Clear signature
+    window.clearSignature = function() {
+        if (confirm('Are you sure you want to clear the signature?')) {
+            document.getElementById('sr-signature-text').value = '';
+            updateSignaturePreview();
+            showNotification('Signature cleared', 'info');
+        }
+    };
+    
+    // Load saved settings from DATABASE
+    async function loadSavedSettings() {
+        try {
+            // Load all settings from server
+            const response = await fetch('/api/smart-reply/settings', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            
+            if (data.success && data.settings) {
+                // Load signature
+                if (data.settings.email_signature) {
+                    document.getElementById('sr-signature-text').value = data.settings.email_signature;
+                    updateSignaturePreview();
+                }
+                
+                // Load auto-refresh settings
+                if (data.settings.auto_refresh_enabled !== undefined) {
+                    document.getElementById('sr-auto-refresh-enabled').checked = data.settings.auto_refresh_enabled;
+                }
+                if (data.settings.refresh_interval) {
+                    document.getElementById('sr-refresh-interval').value = data.settings.refresh_interval;
+                }
+                
+                // Toggle interval selector based on auto-refresh state
+                toggleRefreshIntervalGroup();
+            }
+        } catch (error) {
+            console.error('Error loading settings:', error);
+        }
+    }
+    
+    // CHECK CONNECTION STATUS - CORE FUNCTIONALITY
+    async function checkSmartReplyStatus() {
+        const statusContainer = document.getElementById('sr-status-container');
+        
+        if (!statusContainer) {
+            console.error('Status container not found');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/msauth/status', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+
+            if (data.connected) {
+                statusContainer.innerHTML = `
+                    <div class="sr-status-box connected">
+                        <div class="sr-status-icon">✅</div>
+                        <div class="sr-status-content">
+                            <div class="sr-status-title">Microsoft Account Connected</div>
+                            <div class="sr-status-email">${escapeHtml(data.email || 'Connected')}</div>
+                            ${data.displayName ? `<div class="sr-status-email">${escapeHtml(data.displayName)}</div>` : ''}
+                            <div style="margin-top: 15px;">
+                                <button class="sr-btn sr-btn-danger" onclick="disconnectSmartReply()">
+                                    Disconnect Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                statusContainer.innerHTML = `
+                    <div class="sr-status-box not-connected">
+                        <div class="sr-status-icon">⚠️</div>
+                        <div class="sr-status-content">
+                            <div class="sr-status-title">Microsoft Account Not Connected</div>
+                            <div class="sr-status-email">Connect your account to use Smart Reply features</div>
+                            <div style="margin-top: 15px;">
+                                <button class="sr-btn sr-btn-primary" onclick="connectSmartReply()">
+                                    🔐 Connect Microsoft Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error checking Smart Reply status:', error);
+            statusContainer.innerHTML = `
+                <div class="sr-status-box not-connected">
+                    <div class="sr-status-icon">❌</div>
+                    <div class="sr-status-content">
+                        <div class="sr-status-title">Error Checking Status</div>
+                        <div class="sr-status-email">${escapeHtml(error.message)}</div>
+                        <div style="margin-top: 15px;">
+                            <button class="sr-btn sr-btn-primary" onclick="checkSmartReplyStatus()">
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // CONNECT TO MICROSOFT ACCOUNT - CORE FUNCTIONALITY
+    window.connectSmartReply = async function() {
+        try {
+            const statusContainer = document.getElementById('sr-status-container');
+            statusContainer.innerHTML = `
+                <div class="sr-status-box loading">
+                    <div class="sr-status-icon">⏳</div>
+                    <div class="sr-status-content">
+                        <div class="sr-status-title">Connecting to Microsoft...</div>
+                    </div>
+                </div>
+            `;
+
+            const response = await fetch('/api/msauth/login', {
+                credentials: 'include'
+            });
+            const data = await response.json();
+
+            if (!data.success || !data.authUrl) {
+                throw new Error('Failed to get authentication URL');
+            }
+
+            const width = 600;
+            const height = 700;
+            const left = (screen.width - width) / 2;
+            const top = (screen.height - height) / 2;
+
+            microsoftPopup = window.open(
+                data.authUrl,
+                'Microsoft Login',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+
+            window.addEventListener('message', handleSmartReplyOAuth);
+
+        } catch (error) {
+            console.error('Error connecting Microsoft:', error);
+            showNotification('Failed to connect: ' + error.message, 'error');
+            checkSmartReplyStatus();
+        }
+    };
+    
+    // HANDLE OAUTH CALLBACK
+    function handleSmartReplyOAuth(event) {
+        if (event.data && event.data.type === 'microsoft-auth-success') {
+            console.log('Microsoft authentication successful:', event.data.email);
+            
+            if (microsoftPopup && !microsoftPopup.closed) {
+                microsoftPopup.close();
+            }
+
+            showNotification('Microsoft account connected successfully!', 'success');
+            checkSmartReplyStatus();
+            window.removeEventListener('message', handleSmartReplyOAuth);
+            
+            // ✅ Send message to Smart Reply iframe to reload
+            setTimeout(() => {
+                // Try to find the iframe in parent window (admin.html)
+                if (window.parent && window.parent !== window) {
+                    const parentDoc = window.parent.document;
+                    const smartReplyIframe = parentDoc.getElementById('smartreply-iframe');
+                    if (smartReplyIframe && smartReplyIframe.contentWindow) {
+                        console.log('📤 Sending reload message to Smart Reply iframe...');
+                        smartReplyIframe.contentWindow.postMessage({
+                            type: 'microsoft-connected',
+                            email: event.data.email
+                        }, '*');
+                    }
+                }
+            }, 500);
+        }
+    }
+    
+    // DISCONNECT MICROSOFT ACCOUNT
+    window.disconnectSmartReply = async function() {
+        if (!confirm('Are you sure you want to disconnect your Microsoft account?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/msauth/disconnect', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showNotification('Microsoft account disconnected', 'info');
+                checkSmartReplyStatus();
+            } else {
+                throw new Error(data.error || 'Failed to disconnect');
+            }
+        } catch (error) {
+            console.error('Error disconnecting:', error);
+            showNotification('Failed to disconnect: ' + error.message, 'error');
+        }
+    };
+    
+    // OPEN EMAIL INTERFACE
+    window.openEmailInterface = function() {
+        window.open('/html/smartreply.html', '_blank');
+    };
+    
+    // TEST EMAIL CONNECTION
+    window.testEmailConnection = async function() {
+        try {
+            showNotification('Testing connection...', 'info');
+            
+            const response = await fetch('/api/smart-reply/emails?limit=1', {
+                credentials: 'include'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification('✅ Connection successful! Can access emails.', 'success');
+            } else {
+                throw new Error(data.error || 'Connection test failed');
+            }
+        } catch (error) {
+            showNotification('❌ Connection failed: ' + error.message, 'error');
+        }
+    };
+    
+    // Signature Functions - DATABASE ONLY
+    window.saveSignature = async function() {
+        const signature = document.getElementById('sr-signature-text').value;
+        
+        // Check if signature contains base64 image and warn if too large
+        if (signature.includes('data:image') && signature.length > 100000) {
+            console.warn('Large signature detected:', signature.length, 'characters');
+        }
+        
+        try {
+            const response = await fetch('/api/smart-reply/save-signature', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ signature })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showNotification('✅ Email signature saved!', 'success');
+                updateSignaturePreview();
+                console.log('Signature saved successfully, length:', signature.length);
+            } else {
+                throw new Error(data.error || 'Failed to save');
+            }
+        } catch (error) {
+            console.error('Error saving signature:', error);
+            showNotification('❌ Failed to save signature', 'error');
+        }
+    };
+    
+    function updateSignaturePreview() {
+        const signature = document.getElementById('sr-signature-text').value;
+        const preview = document.getElementById('sr-signature-preview-content');
+        
+        if (signature.trim()) {
+            // Render HTML signature in preview
+            preview.innerHTML = signature;
+        } else {
+            preview.innerHTML = '<em style="color: #6c757d;">Your signature will appear here...</em>';
+        }
+    }
+    
+    // Auto-refresh settings - DATABASE ONLY
+    window.saveAutoRefreshSettings = async function() {
+        const enabled = document.getElementById('sr-auto-refresh-enabled').checked;
+        const interval = document.getElementById('sr-refresh-interval').value;
+        const onLogin = document.getElementById('sr-auto-refresh-on-login').checked;
+        
+        try {
+            const response = await fetch('/api/smart-reply/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    auto_refresh_enabled: enabled,
+                    refresh_interval: parseInt(interval),
+                    auto_refresh_on_login: onLogin
+                })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                showNotification('✅ Auto-refresh settings saved!', 'success');
+                
+                // Notify parent window if in iframe
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'sr-settings-updated',
+                        autoRefresh: {
+                            enabled,
+                            interval,
+                            onLogin
+                        }
+                    }, '*');
+                }
+            }
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            showNotification('❌ Failed to save settings', 'error');
+        }
+    };
+    
+    function toggleRefreshIntervalGroup() {
+        const enabled = document.getElementById('sr-auto-refresh-enabled').checked;
+        const intervalGroup = document.getElementById('sr-refresh-interval-group');
+        intervalGroup.style.display = enabled ? 'block' : 'none';
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Event listeners
+    document.getElementById('sr-signature-text')?.addEventListener('input', updateSignaturePreview);
+    document.getElementById('sr-auto-refresh-enabled')?.addEventListener('change', toggleRefreshIntervalGroup);
+    
+    // MAIN INITIALIZATION FUNCTION
+    window.initSmartReplyModule = async function() {
+        console.log('Initializing Smart Reply module...');
+        await loadSavedSettings();
+        await checkSmartReplyStatus();
+    };
+    
+    // Auto-initialize on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadSavedSettings();
+            await checkSmartReplyStatus();
+        });
+    } else {
+        // DOM already loaded
+        loadSavedSettings();
+        checkSmartReplyStatus();
+    }
+})();
+
+// Ensure functions are available globally after script loads
+console.log('Smart Reply Settings module loaded - COMPLETE VERSION with Image Support');
+</script>

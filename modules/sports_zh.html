@@ -1,0 +1,429 @@
+<section class="mod mod--sports" data-mod="sports" data-track="module-view">
+    <!-- Sports Navigation -->
+    <nav class="sports-nav">
+        <div class="nav-content">
+            <div class="nav-title">您的体育之旅</div>
+            <div class="sport-tabs">
+                <a class="sport-tab active" data-sport="overview">概览</a>
+                <a class="sport-tab gender-sport-tab" data-sport="gender-specific">无板篮球</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overview Section (Default Active) -->
+    <div class="sport-section active" id="overview-section">
+        <!-- Hero with General Sports Video -->
+        <div class="sport-hero">
+            <div class="video-container">
+                <!-- MP4 Video instead of YouTube iframe -->
+                <video class="hero-video" 
+                       data-src="https://cheltenham-college-assets.lon1.cdn.digitaloceanspaces.com/sports-overview-video.mp4"
+                       muted loop playsinline
+                       poster="">
+                </video>
+            </div>
+            <div class="video-overlay"></div>
+            <div class="hero-content">
+                <div class="student-name">欢迎 <span class="child-name">孩子</span></div>
+                <h1 class="hero-title">冠军诞生之地</h1>
+                <p class="hero-subtitle">您的个性化体育课程等待着您</p>
+                <div class="sport-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">40+</span>
+                        <span class="stat-label">提供的运动项目</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">150+</span>
+                        <span class="stat-label">年度比赛</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">12</span>
+                        <span class="stat-label">专业教练</span>
+                    </div>
+                </div>
+            </div>
+            <button class="unmute-btn sports-unmute-btn" data-video-selector=".hero-video">点击取消静音</button>
+        </div>
+
+        <!-- Personal Sports Message -->
+        <div class="personal-sports-message">
+            <div class="personal-message-content">
+                <h2 class="personal-message-title">
+                    <span class="child-name">孩子</span>的运动卓越之旅
+                </h2>
+                <p class="personal-message-text">
+                    <span class="sport-interest-note"></span>
+                    凭借世界一流的设施和教练,您将把表现提升到新高度。
+                    我们的水基人工草坪场地和400米跑道等待着您的到来。
+                    您将培养韧性、团队合作精神和定义切尔滕纳姆运动员的竞争优势。
+                </p>
+                <p class="chosen-sports-highlight">曲棍球 • 田径 • 网球 • 以及更多探索的运动项目</p>
+            </div>
+        </div>
+
+        <!-- Top Sports Featured Section -->
+        <div class="student-sports-section">
+            <div class="student-sports-content">
+                <div class="section-header">
+                    <h2 class="section-title"><span class="highlight-name child-name">孩子</span>的运动卓越</h2>
+                    <p class="section-subtitle">您通往运动卓越的道路从这里开始</p>
+                </div>
+                
+                <div class="top-sports-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3rem;">
+                    <!-- These cards will be populated dynamically based on enquiry form selections -->
+                    <!-- Card 1 - Will be filled with user's first sport choice -->
+                    <div class="top-sport-card" data-gender="mixed" style="display: none;">
+                        <span class="top-sport-badge"></span>
+                        <h3 class="sport-name"></h3>
+                        <p class="sport-details"></p>
+                        <span class="sport-highlight"></span>
+                    </div>
+
+                    <!-- Card 2 - Will be filled with user's second sport choice -->
+                    <div class="top-sport-card" data-gender="mixed" style="display: none;">
+                        <span class="top-sport-badge"></span>
+                        <h3 class="sport-name"></h3>
+                        <p class="sport-details"></p>
+                        <span class="sport-highlight"></span>
+                    </div>
+
+                    <!-- Card 3 - Will be filled with user's third sport choice -->
+                    <div class="top-sport-card" data-gender="mixed" style="display: none;">
+                        <span class="top-sport-badge"></span>
+                        <h3 class="sport-name"></h3>
+                        <p class="sport-details"></p>
+                        <span class="sport-highlight"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Primary Sport Statement -->
+        <div class="primary-sport-statement">
+            <div class="primary-sport-content">
+                <!-- For Boys -->
+                <div class="gender-statement boys" style="display: none;">
+                    <div class="statement-container">
+                        <h3 class="statement-title">橄榄球：<span class="child-name">孩子</span>运动发展的基石</h3>
+                        <div class="statement-text-wrapper">
+                            <p class="statement-text">
+                                切尔滕纳姆学院的橄榄球不仅仅是一项运动——它是我们男孩品格发展的基石。
+                            </p>
+                            <p class="statement-text">
+                                <span class="child-name">孩子</span>,您将发现橄榄球不仅培养身体力量和战术意识,
+                                还培养领导素质、压力下的韧性以及团队合作的牢不可破的纽带。
+                            </p>
+                            <p class="statement-text">
+                                我们国际知名的课程培养了英格兰国家队队员,将为您提供
+                                在球场上和生活中卓越的基础。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- For Girls -->
+                <div class="gender-statement girls" style="display: none;">
+                    <div class="statement-container">
+                        <h3 class="statement-title">无板篮球：<span class="child-name">孩子</span>运动之旅的核心</h3>
+                        <div class="statement-text-wrapper">
+                            <p class="statement-text">
+                                切尔滕纳姆学院的无板篮球代表着女子团队运动卓越的巅峰。
+                            </p>
+                            <p class="statement-text">
+                                <span class="child-name">孩子</span>,您将发现无板篮球不仅发展您的运动技能和战略思维,
+                                还发展您的自信、沟通技巧和协作领导力。
+                            </p>
+                            <p class="statement-text">
+                                我们获得国家认可的课程与精英联赛建立合作伙伴关系,将培养您的潜力,
+                                同时建立终身友谊和定义切尔滕纳姆女性的竞争精神。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Excellence Quote -->
+        <div class="excellence-section">
+            <div class="excellence-content">
+                <div class="excellence-quote">
+                    “<span class="child-name">孩子</span>，培养超出您最初期望的对运动的<span class="highlight">热爱和才能</span>是我们的目标”
+                </div>
+                
+                <div class="excellence-author">切尔滕纳姆学院体育理念</div>
+            </div>
+        </div>
+
+        <!-- All Sports Comprehensive List -->
+        <div class="all-sports-section">
+            <div class="all-sports-content">
+                <div class="section-header">
+                    <h2 class="section-title">为<span class="highlight-name child-name">孩子</span>提供的运动卓越</h2>
+                    <p class="section-subtitle">每一份才能都得到培养,每一份热情都被发现</p>
+                </div>
+                
+                <div class="sports-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3rem;">
+                    <!-- ALL SPORTS FOR GIRLS/MIXED - 18 TOTAL -->
+                    
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">曲棍球</h3>
+                        <p class="sport-details">
+                            两个水基人工草坪场地(奥运标准)。男女生课程共20多支球队。由前国际球员提供专业教练。冬季室内曲棍球课程。定期参加全国决赛。前往荷兰和巴塞罗那的巡回赛。与切尔滕纳姆曲棍球俱乐部的合作关系为通往全国联赛曲棍球提供途径。
+                        </p>
+                        <span class="sport-highlight boys" style="display: none;">2024年U18男子全国决赛</span>
+                        <span class="sport-highlight girls" style="display: none;">2024年U18女子全国决赛</span>
+                        <span class="sport-highlight mixed">2024年全国决赛</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="male">
+                        <span class="gender-tag boys">男生</span>
+                        <h3 class="sport-name">橄榄球</h3>
+                        <p class="sport-details">
+                            从U13到第一XV的15多支球队在最高水平竞争。四个全尺寸场地,包括泛光灯训练区。由前国际球员提供专业教练。与顶级橄榄球学校定期比赛,包括拉格比学校、米尔菲尔德和克利夫顿学院。每年前往南非和阿根廷的巡回赛。力量和体能训练课程。多名现任和前任英格兰年龄组国际球员。
+                        </p>
+                        <span class="sport-highlight">U18全国冠军 | 英格兰国际球员</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="female">
+                        <span class="gender-tag girls">女生</span>
+                        <h3 class="sport-name">无板篮球</h3>
+                        <p class="sport-details">
+                            从U13到第一VII的12支球队在地区和全国级别竞争。六个室外场地和室内设施。专业位置教练和视频分析。与Team Bath超级联赛特许经营权合作。与米尔菲尔德、马尔伯勒和迪恩克洛斯定期比赛。每年前往直布罗陀的巡回赛。为无板篮球量身定制的力量和体能训练课程。
+                        </p>
+                        <span class="sport-highlight">地区冠军 | 全国前10</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">板球</h3>
+                        <p class="sport-details">
+                            专业标准的板球场地,有12个球场。室内板球中心配有投球机和视频分析。从U13到第一XI的男孩球队,女子板球课程迅速扩展。MCC教练资格的教职员工。与郡级和国际学校队定期比赛。前往巴巴多斯和斯里兰卡的板球巡回赛。与格洛斯特郡板球俱乐部的联系。
+                        </p>
+                        <span class="sport-highlight">郡杯冠军 | MCC教练</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">赛艇</h3>
+                        <p class="sport-details">
+                            塞文河上的最先进船库。50多艘船的船队,包括八人艇、四人艇和单人艇。配有Concept2测功仪的室内赛艇套房。在亨利皇家赛艇会、全国学校赛艇会和河流竞赛中竞争。在法国和比利时的训练营。多名英国青年队代表。全职专业教练团队。
+                        </p>
+                        <span class="sport-highlight">亨利资格赛 | 英国青年队管道</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">游泳</h3>
+                        <p class="sport-details">
+                            25米六泳道室内加热游泳池,配有电子计时。从早上6:30开始的每日队训练。竞技游泳、水球、救生和花样游泳课程。郡级和地区锦标赛参与者。在当地湖泊进行开放水域游泳。兰萨罗特游泳训练营。与切尔滕纳姆游泳俱乐部的联系为精英表演者提供支持。
+                        </p>
+                        <span class="sport-highlight">地区冠军 | 8名郡级游泳运动员</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">田径</h3>
+                        <p class="sport-details">
+                            400米全天候跑道、跳跃坑、投掷笼和室内训练设施。短跑、中长跑、投掷和跳跃的专业项目教练。在英国学校锦标赛、ISA锦标赛和阿基里斯接力赛中竞争。冬季越野课程。提供田径奖学金。运动科学支持,包括生物力学分析。
+                        </p>
+                        <span class="sport-highlight">3名全国奖牌获得者 | 郡级冠军</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">网球</h3>
+                        <p class="sport-details">
+                            12个硬地场、6个草地场和4个室内场。LTA持证教练提供个人和团体教练。全年课程,与顶级独立学校进行比赛。在ISTA、阿伯德尔杯和格兰维尔杯中竞争。前往拉曼加和葡萄牙的网球巡回赛。与当地表演中心的联系为精英球员提供支持。视频分析和健身课程。
+                        </p>
+                        <span class="sport-highlight">全国学校决赛选手 | LTA地区中心</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">壁球</h3>
+                        <p class="sport-details">
+                            专用壁球中心的四个玻璃背板锦标赛场地。由前PSA巡回赛球员提供专业教练。球队在全国学校锦标赛中竞争。为郡级和地区球员提供个人支持。提供壁球奖学金。定期比赛,包括米尔菲尔德、克利夫顿和布罗姆斯格罗夫。
+                        </p>
+                        <span class="sport-highlight">英国前10学校 | 郡级训练场地</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">高尔夫</h3>
+                        <p class="sport-details">
+                            与科茨沃尔德山和利利布鲁克高尔夫俱乐部合作。PGA专业教练提供视频分析和Trackman技术。定期18洞比赛。参加ISGA锦标赛。前往葡萄牙和苏格兰的高尔夫巡回赛。支持参加全国业余赛事的精英球员。冬季训练的室内模拟器。
+                        </p>
+                        <span class="sport-highlight">ISGA决赛 | 3名郡级球员</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">马术</h3>
+                        <p class="sport-details">
+                            涵盖障碍赛、三日赛、盛装舞步和马球的综合课程。与当地BHS批准的中心合作。NSEA比赛,包括在希克斯特德举行的学校锦标赛。为马主提供饲养安排支持。与BE认证教练的定期培训。为有才华的骑手提供马术奖学金。
+                        </p>
+                        <span class="sport-highlight">NSEA全国资格赛 | 希克斯特德竞争者</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">足球</h3>
+                        <p class="sport-details">
+                            从U13到第一XI的男孩球队,女孩球队快速增长。3G全天候场地和多个草地场地。FA资格教练,包括UEFA B执照持有者。ISFA杯和郡杯比赛。前往西班牙和荷兰的足球巡回赛。冬季的五人制足球课程。与切尔滕纳姆镇足球俱乐部学院的联系。
+                        </p>
+                        <span class="sport-highlight">ISFA地区冠军 | 郡杯半决赛</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">羽毛球</h3>
+                        <p class="sport-details">
+                            配有专业羽毛球地板的四场体育馆。球队在全国学校锦标赛和郡级联赛中竞争。提供视频分析的个人教练。与切尔滕纳姆羽毛球俱乐部合作。与迪恩克洛斯、布罗姆斯格罗夫和国王伍斯特定期比赛。
+                        </p>
+                        <span class="sport-highlight">郡级冠军 | 地区决赛</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">篮球</h3>
+                        <p class="sport-details">
+                            配有专业篮筐和电子记分牌的室内场地。男女球队在地区联赛中竞争。美式教练方法配合视频分析。为有才华的球员提供篮球奖学金。与布里斯托尔飞行者职业队的联系。3对3比赛和技能挑战。
+                        </p>
+                        <span class="sport-highlight">地区联赛冠军 | 全国学校资格赛</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">排球</h3>
+                        <p class="sport-details">
+                            体育馆内配有比赛标准网的室内排球。夏季学期的沙滩排球场。球队在全国学校比赛中竞争。由前国家队球员提供教练。定期比赛和锦标赛。参与度不断增加的成长中课程。
+                        </p>
+                        <span class="sport-highlight">地区竞争者 | 增长最快的运动</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">飞碟射击</h3>
+                        <p class="sport-details">
+                            与当地顶级射击场合作。CPSA资格指导涵盖所有学科——运动飞碟、双向飞碟和多向飞碟。在学校挑战赛和NSRA锦标赛中竞争。提供枪支存储和安全认证。与其他独立学校的定期比赛。为初学者提供所有设备。
+                        </p>
+                        <span class="sport-highlight">学校挑战赛决赛选手 | CPSA注册</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">马球</h3>
+                        <p class="sport-details">
+                            在埃奇沃斯马球俱乐部介绍马球。竞技场马球训练和球杆训练课程。提供马匹的HPA教练。在SUPA学校锦标赛中竞争。提供阿根廷夏令营。与博福特和赛伦塞斯特公园马球俱乐部的联系。为有经验的球员提供支持。
+                        </p>
+                        <span class="sport-highlight">SUPA锦标赛球员 | HPA附属</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">水球</h3>
+                        <p class="sport-details">
+                            在我们的25米游泳池中训练,配有专用水球设备。男女球队在地区联赛中竞争。由前英国队球员提供教练。与切尔滕纳姆水球俱乐部的联系。前往克罗地亚和匈牙利的巡回赛机会。通往地区和国家队的途径。
+                        </p>
+                        <span class="sport-highlight">地区联赛 | 全国学校比赛</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="female">
+                        <span class="gender-tag girls">女生</span>
+                        <h3 class="sport-name">圆场棒球</h3>
+                        <p class="sport-details">
+                            夏季学期运动,从U13到第一IX的球队。参加郡级锦标赛,包括Lady Taverners比赛。专业教练提供战术发展。与当地独立学校的定期比赛。前往巴巴多斯与板球巡回赛相结合的巡回赛机会。
+                        </p>
+                        <span class="sport-highlight">郡级锦标赛冠军 | 地区决赛</span>
+                    </div>
+
+                    <div class="sport-card" data-gender="mixed">
+                        <span class="gender-tag mixed">男生和女生</span>
+                        <h3 class="sport-name">极限飞盘</h3>
+                        <p class="sport-details">
+                            混合球队在学校锦标赛中竞争。训练重点是投掷技术、战术和健身。参加英国极限青年锦标赛。与当地极限俱乐部的联系。冬季的室内极限。强调比赛精神和自我裁判。
+                        </p>
+                        <span class="sport-highlight">全国学校锦标赛 | 包容性运动奖</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gender-Specific Sport Section (Rugby/Netball) -->
+    <div class="sport-section" id="gender-specific-section">
+        <div class="sport-hero">
+            <div class="video-container">
+                <!-- MP4 Video with both sources -->
+                <video class="gender-video"
+                       data-rugby-src="https://cheltenham-college-assets.lon1.cdn.digitaloceanspaces.com/rugby-video.mp4"
+                       data-netball-src="https://cheltenham-college-assets.lon1.cdn.digitaloceanspaces.com/netball-video.mp4"
+                       muted loop playsinline
+                       poster="">
+                </video>
+            </div>
+            <div class="video-overlay"></div>
+            <div class="hero-content">
+                <div class="student-name gender-sport-title">切尔滕纳姆的橄榄球</div>
+                <h1 class="hero-title gender-sport-hero-title">力量、策略、成功</h1>
+                <p class="hero-subtitle gender-sport-subtitle">获得国际认可的精英课程</p>
+                <div class="sport-stats">
+                    <div class="stat-item">
+                        <span class="stat-number gender-stat-1">15+</span>
+                        <span class="stat-label gender-label-1">球队</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number gender-stat-2">12</span>
+                        <span class="stat-label gender-label-2">场地</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number gender-stat-3">2</span>
+                        <span class="stat-label gender-label-3">年度巡回赛</span>
+                    </div>
+                </div>
+            </div>
+            <button class="unmute-btn sports-unmute-btn" data-video-selector=".gender-video">点击取消静音</button>
+        </div>
+    </div>
+
+    <!-- Facilities Section -->
+    <div class="facilities-grid">
+        <div class="facility-card">
+            <img data-src="https://cheltenham-college.s3.eu-west-2.amazonaws.com/wp-content/uploads/2024/02/06142213/Girls-hockey-640x427.jpeg" 
+                 alt="人工草坪场地" 
+                 class="facility-image">
+            <div class="facility-info">
+                <h3 class="facility-name">两个全尺寸人工草坪场地</h3>
+                <p class="facility-description">国际标准全天候场地</p>
+            </div>
+        </div>
+        <div class="facility-card">
+            <img data-src="https://cheltenham-college.s3.eu-west-2.amazonaws.com/wp-content/uploads/2024/02/06143052/Swimming-640x428.jpg" 
+                 alt="游泳池" 
+                 class="facility-image">
+            <div class="facility-info">
+                <h3 class="facility-name">25米室内游泳池</h3>
+                <p class="facility-description">配有计时系统的六泳道加热游泳池</p>
+            </div>
+        </div>
+        <div class="facility-card">
+            <img data-src="https://cheltenham-college.s3.eu-west-2.amazonaws.com/wp-content/uploads/2024/02/06142307/Rowing9-640x360.jpg" 
+                 alt="赛艇" 
+                 class="facility-image">
+            <div class="facility-info">
+                <h3 class="facility-name">塞文河船库</h3>
+                <p class="facility-description">适合所有级别的50多艘船队</p>
+            </div>
+        </div>
+    </div>
+    <!-- CTA Section -->
+<div class="cta-section">
+    <div class="cta-content">
+        <h2 class="cta-title"><span class="child-name">孩子</span>的旅程从这里开始</h2>
+        <p class="cta-text">加入运动卓越的传统,您将找到自己的热情并发挥潜力</p>
+        <a href="https://www.cheltenhamcollege.org/admissions/visit-us/" class="cta-button" target="_blank">
+            预约参观
+        </a>
+    </div>
+</div>
+</section>

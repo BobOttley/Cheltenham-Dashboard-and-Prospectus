@@ -1,0 +1,166 @@
+/* ===== HERO MODULE STYLES ===== */
+
+.mod.mod--hero {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+.hero-module {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  width: 100vw;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+  transition: all .8s ease-out;
+  background: linear-gradient(to bottom, rgba(30,58,95,.7) 0%, rgba(30,58,95,.85) 50%, rgba(30,58,95,.9) 100%);
+}
+
+.hero-overlay.move-bottom {
+  justify-content: flex-end;
+  padding: 0 2rem 3rem;
+  background: linear-gradient(to bottom, rgba(30,58,95,0) 0%, rgba(30,58,95,.1) 50%, rgba(30,58,95,.8) 100%);
+}
+
+.golden-bracket {
+  width: 100px;
+  height: auto;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  opacity: .9;
+}
+
+.hero-title {
+  font-size: 5rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 300;
+  letter-spacing: .05em;
+  margin-bottom: 2rem;
+}
+
+.hero-title .ampersand {
+  color: var(--cc-gold);
+  font-style: italic;
+}
+
+.hero-welcome {
+  font-size: 1.75rem;
+  font-weight: 300;
+  letter-spacing: .02em;
+  margin-bottom: 1.5rem;
+}
+
+.hero-tagline {
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: .3em;
+  font-weight: 600;
+  color: var(--cc-gold);
+}
+
+/* FIXED AUDIO TOGGLE BUTTON — aligned with final hero */
+.audio-toggle,
+#audioToggle,
+.fh-unmute-btn {
+  position: absolute !important;
+  top: 2rem !important;
+  right: 2rem !important;
+  z-index: 1000 !important;
+
+  /* Dimensions to prevent stretch/reflow “flicker” */
+  width: auto !important;
+  height: auto !important;
+  min-width: 140px !important;
+  min-height: 48px !important;
+  max-width: 220px !important;
+  max-height: 60px !important;
+
+  /* Styling */
+  background: rgba(201, 169, 97, 0.9) !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 16px 24px !important;
+  border-radius: 6px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+
+  /* Layout */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+  pointer-events: auto !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+  transform: scale(1.1) !important;
+}
+
+.audio-toggle:hover,
+#audioToggle:hover,
+.fh-unmute-btn:hover {
+  background: rgba(201, 169, 97, 1) !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3) !important;
+}
+
+.audio-toggle:active,
+#audioToggle:active,
+.fh-unmute-btn:active {
+  transform: scale(1.05) !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 900px) {
+  .audio-toggle,
+  #audioToggle,
+  .fh-unmute-btn {
+    top: 1rem !important;
+    right: 1rem !important;
+    padding: 12px 18px !important;
+    font-size: 14px !important;
+    min-width: 140px !important;
+    min-height: 44px !important;
+    max-width: 200px !important;
+    max-height: 50px !important;
+    transform: scale(1.05) !important;
+  }
+
+  .audio-toggle:hover,
+  #audioToggle:hover,
+  .fh-unmute-btn:hover {
+    transform: scale(1.1) !important;
+  }
+}
