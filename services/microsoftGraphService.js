@@ -3,16 +3,39 @@ const msal = require('@azure/msal-node');
 const graph = require('@microsoft/microsoft-graph-client');
 require('isomorphic-fetch');
 
+// Helper: get the first defined env var from a list of keys
+const first = (...keys) => keys.map(k => process.env[k]).find(Boolean);
+
+// Resolve env with fallbacks so local ".env" using MS_* still works
+function resolveMicrosoftEnv() {
+  const env = {
+    clientId:     first('MICROSOFT_CLIENT_ID', 'MS_CLIENT_ID'),
+    clientSecret: first('MICROSOFT_CLIENT_SECRET', 'MS_CLIENT_SECRET'),
+    redirectUri:  first('MICROSOFT_REDIRECT_URI', 'MS_REDIRECT_URI'),
+    tenantId:     first('MICROSOFT_TENANT_ID', 'MS_TENANT_ID') || 'common',
+    // Optional: allow PUBLIC_BASE_URL as a final fallback for redirect
+    publicBaseUrl: process.env.PUBLIC_BASE_URL
+  };
+
+  // If redirectUri is still missing but PUBLIC_BASE_URL exists, derive a sensible default
+  if (!env.redirectUri && env.publicBaseUrl) {
+    env.redirectUri = `${env.publicBaseUrl.replace(/\/+$/, '')}/auth/microsoft/callback`;
+  }
+
+  return env;
+}
+
 class MicrosoftGraphService {
   constructor() {
-    // Validate required environment variables
-    this.validateConfig();
+    this.env = resolveMicrosoftEnv();
+    this.validateConfig(); // throws with helpful details if not set
 
     this.msalConfig = {
       auth: {
-        clientId: process.env.MICROSOFT_CLIENT_ID,
-        clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
-        authority: `https://login.microsoftonline.com/${process.env.MICROSOFT_TENANT_ID || 'common'}`
+        clientId: this.env.clientId,
+        clientSecret: this.env.clientSecret,
+        authority: `https://login.microsoftonline.com/${this.env.tenantId}`
+        // Note: redirectUri is supplied per-request for auth code URLs / token calls
       },
       system: {
         loggerOptions: {
@@ -28,6 +51,8 @@ class MicrosoftGraphService {
     };
 
     this.msalClient = new msal.ConfidentialClientApplication(this.msalConfig);
+
+    // Scopes you’re using already (kept the same)
     this.scopes = [
       'User.Read',
       'Mail.Read',
@@ -36,23 +61,31 @@ class MicrosoftGraphService {
       'offline_access'
     ];
 
-    console.log('✅ Microsoft Graph Service initialized');
-    console.log('📧 Redirect URI:', process.env.MICROSOFT_REDIRECT_URI);
+    console.log('✅ Microsoft Graph Service initialised');
+    console.log('🔐 Tenant:', this.env.tenantId);
+    console.log('📧 Redirect URI:', this.env.redirectUri || '(missing)');
   }
 
   /**
    * Validate required environment variables
    */
   validateConfig() {
-    const required = [
-      'MICROSOFT_CLIENT_ID',
-      'MICROSOFT_CLIENT_SECRET',
-      'MICROSOFT_REDIRECT_URI'
-    ];
-
-    const missing = required.filter(key => !process.env[key]);
+    const missing = [];
+    if (!this.env.clientId)     missing.push('MICROSOFT_CLIENT_ID / MS_CLIENT_ID');
+    if (!this.env.clientSecret) missing.push('MICROSOFT_CLIENT_SECRET / MS_CLIENT_SECRET');
+    if (!this.env.redirectUri)  missing.push('MICROSOFT_REDIRECT_URI / MS_REDIRECT_URI (or PUBLIC_BASE_URL)');
 
     if (missing.length > 0) {
+      // Helpful console to show which variants are present
+      console.error('❌ Missing Microsoft envs:', {
+        MICROSOFT_CLIENT_ID: !!process.env.MICROSOFT_CLIENT_ID,
+        MS_CLIENT_ID:        !!process.env.MS_CLIENT_ID,
+        MICROSOFT_CLIENT_SECRET: !!process.env.MICROSOFT_CLIENT_SECRET,
+        MS_CLIENT_SECRET:        !!process.env.MS_CLIENT_SECRET,
+        MICROSOFT_REDIRECT_URI:  !!process.env.MICROSOFT_REDIRECT_URI,
+        MS_REDIRECT_URI:         !!process.env.MS_REDIRECT_URI,
+        PUBLIC_BASE_URL:         !!process.env.PUBLIC_BASE_URL
+      });
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
     }
   }
@@ -81,26 +114,26 @@ class MicrosoftGraphService {
   }
 
   /**
-   * Get authorization URL
+   * Get authorisation URL
    */
   async getAuthUrl(state = null) {
     const authCodeUrlParameters = {
       scopes: this.scopes,
-      redirectUri: process.env.MICROSOFT_REDIRECT_URI,
-      state: state
+      redirectUri: this.env.redirectUri,
+      state
     };
 
     return await this.msalClient.getAuthCodeUrl(authCodeUrlParameters);
   }
 
   /**
-   * Acquire token by authorization code
+   * Acquire token by authorisation code
    */
   async acquireTokenByCode(code) {
     const tokenRequest = {
-      code: code,
+      code,
       scopes: this.scopes,
-      redirectUri: process.env.MICROSOFT_REDIRECT_URI
+      redirectUri: this.env.redirectUri
     };
 
     return await this.msalClient.acquireTokenByCode(tokenRequest);
@@ -111,7 +144,7 @@ class MicrosoftGraphService {
    */
   async refreshToken(refreshToken) {
     const refreshTokenRequest = {
-      refreshToken: refreshToken,
+      refreshToken,
       scopes: this.scopes
     };
 
@@ -141,14 +174,11 @@ class MicrosoftGraphService {
       const uniqueEmails = [];
 
       for (const msg of messages.value) {
-        // Use internetMessageId as the unique identifier
         const uniqueId = msg.internetMessageId || msg.id;
-
         if (seen.has(uniqueId)) {
           console.log(`⚠️  Skipping duplicate email: ${msg.subject} (ID: ${uniqueId})`);
           continue;
         }
-
         seen.add(uniqueId);
 
         uniqueEmails.push({
@@ -176,8 +206,6 @@ class MicrosoftGraphService {
     }
   }
 
-
-
   /**
    * Fetch emails with pagination support (for infinite scroll)
    */
@@ -185,7 +213,6 @@ class MicrosoftGraphService {
     try {
       const client = this.getGraphClient(accessToken);
 
-      // Build the request
       let request = client
         .api('/me/mailFolders/inbox/messages')
         .top(limit)
@@ -194,29 +221,23 @@ class MicrosoftGraphService {
         .expand('singleValueExtendedProperties($filter=id eq \'String 0x1000\')')
         .header('Prefer', 'outlook.body-content-type="text"');
 
-      // Add skipToken if provided (for pagination)
       if (skipToken) {
-        // Microsoft Graph uses $skiptoken in the URL
-        // We need to manually construct the URL with the skiptoken
         const baseUrl = '/me/mailFolders/inbox/messages';
         const params = new URLSearchParams({
-          '$top': limit.toString(),
+          '$top': String(limit),
           '$select': 'id,subject,from,toRecipients,receivedDateTime,bodyPreview,body,isRead,internetMessageId,conversationId',
           '$orderby': 'receivedDateTime DESC',
           '$expand': 'singleValueExtendedProperties($filter=id eq \'String 0x1000\')',
           '$skiptoken': skipToken
         });
-        
         request = client
           .api(`${baseUrl}?${params.toString()}`)
           .header('Prefer', 'outlook.body-content-type="text"');
       }
 
       const response = await request.get();
-
       console.log(`📬 Fetched ${response.value.length} emails from Graph API (with pagination)`);
 
-      // Extract the next skipToken from @odata.nextLink if available
       let nextSkipToken = null;
       if (response['@odata.nextLink']) {
         const nextUrl = new URL(response['@odata.nextLink']);
@@ -226,19 +247,15 @@ class MicrosoftGraphService {
         console.log('✅ All emails fetched - no more pages');
       }
 
-      // Deduplicate by internetMessageId (RFC 822 message ID)
       const seen = new Set();
       const uniqueEmails = [];
 
       for (const msg of response.value) {
-        // Use internetMessageId as the unique identifier
         const uniqueId = msg.internetMessageId || msg.id;
-
         if (seen.has(uniqueId)) {
           console.log(`⚠️  Skipping duplicate email: ${msg.subject} (ID: ${uniqueId})`);
           continue;
         }
-
         seen.add(uniqueId);
 
         uniqueEmails.push({
@@ -259,10 +276,7 @@ class MicrosoftGraphService {
 
       console.log(`✅ After deduplication: ${uniqueEmails.length} unique emails`);
 
-      return {
-        emails: uniqueEmails,
-        skipToken: nextSkipToken
-      };
+      return { emails: uniqueEmails, skipToken: nextSkipToken };
     } catch (error) {
       console.error('❌ Failed to fetch emails with pagination:', error);
       throw new Error('Failed to fetch emails from Microsoft: ' + error.message);
@@ -283,16 +297,10 @@ class MicrosoftGraphService {
 
       const message = {
         subject: emailData.subject,
-        body: {
-          contentType: 'HTML',
-          content: html
-        },
-        toRecipients: [
-          { emailAddress: { address: emailData.to } }
-        ]
+        body: { contentType: 'HTML', content: html },
+        toRecipients: [{ emailAddress: { address: emailData.to } }]
       };
 
-      // Add inline attachments if provided
       if (emailData.attachments && emailData.attachments.length > 0) {
         message.attachments = emailData.attachments.map(att => ({
           '@odata.type': '#microsoft.graph.fileAttachment',
@@ -304,11 +312,7 @@ class MicrosoftGraphService {
         }));
       }
 
-      const sendMail = {
-        message: message,
-        saveToSentItems: true
-      };
-
+      const sendMail = { message, saveToSentItems: true };
       await client.api('/me/sendMail').post(sendMail);
 
       console.log('✅ Email sent successfully');
@@ -329,7 +333,6 @@ class MicrosoftGraphService {
     const client = this.getGraphClient(accessToken);
 
     try {
-      // 1) Create a reply draft
       const draft = await client
         .api(`/me/messages/${encodeURIComponent(messageId)}/createReply`)
         .post({});
@@ -339,19 +342,14 @@ class MicrosoftGraphService {
 
       console.log(`📝 Created draft reply: ${draftId}`);
 
-      // 2) Replace the draft body with our composed HTML
       await client
         .api(`/me/messages/${encodeURIComponent(draftId)}`)
-        .patch({
-          body: { contentType: 'HTML', content: bodyHtml }
-        });
+        .patch({ body: { contentType: 'HTML', content: bodyHtml } });
 
-      console.log(`✏️  Updated draft body`);
+      console.log('✏️  Updated draft body');
 
-      // 3) Add inline attachments if provided
       if (attachments && attachments.length > 0) {
         console.log(`📎 Adding ${attachments.length} inline attachments`);
-        
         for (const att of attachments) {
           await client
             .api(`/me/messages/${encodeURIComponent(draftId)}/attachments`)
@@ -364,16 +362,11 @@ class MicrosoftGraphService {
               isInline: att.isInline || true
             });
         }
-        
-        console.log(`✅ Inline attachments added`);
+        console.log('✅ Inline attachments added');
       }
 
-      // 4) Send the draft
-      await client
-        .api(`/me/messages/${encodeURIComponent(draftId)}/send`)
-        .post({});
-
-      console.log(`✅ Reply sent successfully`);
+      await client.api(`/me/messages/${encodeURIComponent(draftId)}/send`).post({});
+      console.log('✅ Reply sent successfully');
 
       return { success: true, messageId: draftId };
     } catch (error) {
@@ -399,18 +392,15 @@ class MicrosoftGraphService {
 
       console.log(`📤 Fetched ${messages.value.length} sent emails from Graph API`);
 
-      // Deduplicate by internetMessageId
       const seen = new Set();
       const uniqueEmails = [];
 
       for (const msg of messages.value) {
         const uniqueId = msg.internetMessageId || msg.id;
-
         if (seen.has(uniqueId)) {
           console.log(`⚠️  Skipping duplicate sent email: ${msg.subject}`);
           continue;
         }
-
         seen.add(uniqueId);
 
         uniqueEmails.push({
@@ -432,7 +422,7 @@ class MicrosoftGraphService {
         });
       }
 
-      console.log(`✅ After deduplication: ${uniqueEmails.length} unique sent emails`);
+      console.log(`✅ After deduplication: ${uniqueEmails.length} unique emails`);
 
       return uniqueEmails;
     } catch (error) {
@@ -486,34 +476,27 @@ class MicrosoftGraphService {
   }
 
   /**
- * Save email as draft in Outlook
- */
-async saveDraft(accessToken, emailData) {
+   * Save email as draft in Outlook
+   */
+  async saveDraft(accessToken, emailData) {
     try {
-        const client = this.getGraphClient(accessToken);
+      const client = this.getGraphClient(accessToken);
 
-        const message = {
-            subject: emailData.subject || '(No Subject)',
-            body: {
-                contentType: 'HTML',
-                content: emailData.body || ''
-            },
-            toRecipients: emailData.to ? [
-                { emailAddress: { address: emailData.to } }
-            ] : []
-        };
+      const message = {
+        subject: emailData.subject || '(No Subject)',
+        body: { contentType: 'HTML', content: emailData.body || '' },
+        toRecipients: emailData.to ? [{ emailAddress: { address: emailData.to } }] : []
+      };
 
-        const draft = await client
-            .api('/me/messages')
-            .post(message);
+      const draft = await client.api('/me/messages').post(message);
 
-        console.log('✅ Draft saved successfully');
-        return { success: true, draftId: draft.id };
+      console.log('✅ Draft saved successfully');
+      return { success: true, draftId: draft.id };
     } catch (error) {
-        console.error('❌ Error saving draft:', error);
-        throw new Error('Failed to save draft: ' + error.message);
+      console.error('❌ Error saving draft:', error);
+      throw new Error('Failed to save draft: ' + error.message);
     }
-}
+  }
 
   /**
    * Get user's profile information
@@ -540,38 +523,27 @@ async saveDraft(accessToken, emailData) {
   }
 }
 
-// Initialize service
+// Initialisation with graceful fallback if misconfigured
 let service;
 try {
   service = new MicrosoftGraphService();
 } catch (error) {
-  console.error('❌ Microsoft Graph Service initialization failed:', error.message);
+  console.error('❌ Microsoft Graph Service initialisation failed:', error.message);
   console.error('⚠️  Smart Reply features will be disabled until configuration is added');
 
-  // Fallback service that returns helpful errors (prevents crashes if misconfigured)
   service = {
     isConfigured: () => false,
-    getAuthUrl: async () => {
-      throw new Error('Microsoft OAuth is not configured. Please add MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, and MICROSOFT_REDIRECT_URI to your .env file');
-    },
-    acquireTokenByCode: async () => {
-      throw new Error('Microsoft OAuth is not configured');
-    },
-    refreshToken: async () => {
-      throw new Error('Microsoft OAuth is not configured');
-    },
-    fetchEmails: async () => {
-      throw new Error('Microsoft OAuth is not configured');
-    },
-    sendEmail: async () => {
-      throw new Error('Microsoft OAuth is not configured');
-    },
-    replyToMessage: async () => {
-      throw new Error('Microsoft OAuth is not configured');
-    },
-    getUserProfile: async () => {
-      throw new Error('Microsoft OAuth is not configured');
-    }
+    getAuthUrl: async () => { throw new Error('Microsoft OAuth is not configured. Please add MICROSOFT_CLIENT_ID (or MS_CLIENT_ID), MICROSOFT_CLIENT_SECRET (or MS_CLIENT_SECRET), and MICROSOFT_REDIRECT_URI (or MS_REDIRECT_URI) to your environment'); },
+    acquireTokenByCode: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    refreshToken: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    fetchEmails: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    fetchEmailsWithPagination: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    sendEmail: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    replyToMessage: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    fetchSentEmails: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    fetchDrafts: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    saveDraft: async () => { throw new Error('Microsoft OAuth is not configured'); },
+    getUserProfile: async () => { throw new Error('Microsoft OAuth is not configured'); }
   };
 }
 
